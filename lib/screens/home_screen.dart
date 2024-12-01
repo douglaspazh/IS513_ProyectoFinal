@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:money_app/screens/add_transaction_screen.dart';
-import 'package:money_app/screens/settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,18 +9,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedPageIndex = 0;
-
-  final List<Widget> _pages = [
-    const Placeholder(),
-    const AddTransactionScreen(),
-    const SettingsScreen()
-  ];
-
-  void _selectPage(int index) {
-    setState(() {
-      _selectedPageIndex = index;
-    });
+  void _selectPage(String route) {
+    Navigator.of(context).popAndPushNamed(route);
   }
 
   @override
@@ -38,42 +27,46 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               leading: const Icon(Icons.home),
               title: const Text('Inicio'),
-              onTap: () => _selectPage(0),
+              onTap: () => _selectPage('/home'),
             ),
             ListTile(
               leading: const Icon(Icons.history),
               title: const Text('Historial'),
-              onTap: () => {},
+              onTap: () => _selectPage('/history'),
             ),
             ListTile(
               leading: const Icon(Icons.attach_money),
               title: const Text('Cuentas'),
-              onTap: () => {},
+              onTap: () => _selectPage('/accounts'),
             ),
             ListTile(
               leading: const Icon(Icons.bar_chart),
               title: const Text('Graficas'),
-              onTap: () => {},
+              onTap: () => _selectPage('/charts'),
             ),
             ListTile(
               leading: const Icon(Icons.category),
               title: const Text('Categorias'),
-              onTap: () => {},
+              onTap: () => _selectPage('/categories'),
             ),
             ListTile(
               leading: const Icon(Icons.notification_important),
               title: const Text('Alertas'),
-              onTap: () => {},
+              onTap: () => _selectPage('/alerts'),
             ),
             ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Ajustes'),
-              onTap: () => {},
+              onTap: () => _selectPage('/settings'),
             )
           ],
         ),
       ),
-      body: _pages[_selectedPageIndex],
+      body: const Placeholder(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
