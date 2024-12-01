@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:money_app/models/transaction.dart';
 import 'package:money_app/screens/add_transaction_screen.dart';
 import 'package:money_app/screens/base_screen.dart';
+import 'package:money_app/utils/db_helper.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,12 +12,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Transaction> _transactions = [];
+  List<TransactionData> _transactions = [];
 
-  void _addTransaction(Transaction transaction) {
+  void _addTransaction(TransactionData transaction) async {
+    await DBHelper.instance.insertTransaction(transaction);
+    _loadTransactions();
+  }
+
+  void _loadTransactions() async {
+    final transactions = await DBHelper.instance.fetchTransactions();
     setState(() {
-      _transactions.add(transaction);
+      _transactions = transactions;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTransactions();
   }
 
   @override
@@ -31,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
               style: TextStyle(fontSize: 18),
             ),
           ),
-          
+
           Expanded(
             child: ListView.builder(
               itemCount: _transactions.length,

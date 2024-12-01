@@ -33,10 +33,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
   void _saveTransaction() {
     if (_formKey.currentState!.validate()) {
-      final transaction = Transaction(
+      final transaction = TransactionData(
         amount: double.parse(_amountController.text),
         category: _categoryController.text,
         date: DateFormat('dd-MM-yyyy').format(_selectedDate),
+        isIncome: false
       );
 
       // Llamar al callback
@@ -71,7 +72,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   return null;
                 },
               ),
-              // Categoría
+
+              // Categoria
               TextFormField(
                 controller: _categoryController,
                 decoration: const InputDecoration(labelText: 'Categoría'),
@@ -82,6 +84,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   return null;
                 },
               ),
+              
               // Fecha
               ListTile(
                 title: Text('Fecha: ${DateFormat.yMd().format(_selectedDate)}'),
@@ -89,9 +92,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 onTap: () => _selectDate(context),
               ),
               const SizedBox(height: 20),
+              
+              // Guardar transaccion
               ElevatedButton(
                 onPressed: _saveTransaction,
-                child: const Text('Guardar Transacción'),
+                child: const Text('Agregar'),
               ),
             ],
           ),
