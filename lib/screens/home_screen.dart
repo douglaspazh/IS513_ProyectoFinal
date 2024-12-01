@@ -10,7 +10,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectIndex = 0;
+  int _selectedPageIndex = 0;
 
   final List<Widget> _pages = [
     const Placeholder(),
@@ -18,26 +18,62 @@ class _HomeScreenState extends State<HomeScreen> {
     const SettingsScreen()
   ];
 
-  void _onItemTapped(int index) {
+  void _selectPage(int index) {
     setState(() {
-      _selectIndex = index;
+      _selectedPageIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Gestión de Gastos'),),
-      body: _pages[_selectIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Agregar'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Ajustes')
-        ],
+      appBar: AppBar(title: const Text('Gestión de Gastos')),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              child: Text('Menú')
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text('Inicio'),
+              onTap: () => _selectPage(0),
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('Historial'),
+              onTap: () => {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.attach_money),
+              title: const Text('Cuentas'),
+              onTap: () => {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.bar_chart),
+              title: const Text('Graficas'),
+              onTap: () => {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.category),
+              title: const Text('Categorias'),
+              onTap: () => {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.notification_important),
+              title: const Text('Alertas'),
+              onTap: () => {},
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Ajustes'),
+              onTap: () => {},
+            )
+          ],
+        ),
       ),
+      body: _pages[_selectedPageIndex],
     );
   }
 }
