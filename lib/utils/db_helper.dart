@@ -4,6 +4,7 @@ import 'package:money_app/models/transaction.dart';
 
 class DBHelper {
   static const String _databaseName = 'transactions.db';
+  static const int _databaseVersion = 1;
   static const String _tableName = 'transactions';
 
   DBHelper._privateConstructor();
@@ -28,6 +29,7 @@ class DBHelper {
     String path = join(await getDatabasesPath(), _databaseName);
     return await openDatabase(
       path,
+      version: _databaseVersion,
       onCreate: _onCreate,
     );
   }
@@ -39,18 +41,35 @@ class DBHelper {
   }
 
   Future<int> insertTransaction(TransactionData transaction) async {
-    Database db = await database;
-    return await db.insert(_tableName, transaction.toMap());
+    final Database db = await database;
+    return await db.insert(
+      _tableName,
+      transaction.toMap()
+    );
   }
 
   Future<List<TransactionData>> fetchTransactions() async {
-    Database db = await database;
+    final Database db = await database;
     List<Map<String, dynamic>> result = await db.query(_tableName);
     return result.map((e) => TransactionData.fromMap(e)).toList();
   }
 
+  Future<int> updateTransaction(TransactionData transaction) async {
+    final Database db = await database;
+    return await db.update(
+      _tableName,
+      transaction.toMap(),
+      where: 'id = ?',
+      whereArgs: [transaction.id],
+    );
+  }
+
   Future<int> deleteTransaction(int id) async {
-    Database db = await database;
-    return await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
+    final Database db = await database;
+    return await db.delete(
+      _tableName,
+      where: 'id = ?',
+      whereArgs: [id]
+    );
   }
 }
