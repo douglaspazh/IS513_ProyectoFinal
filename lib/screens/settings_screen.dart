@@ -6,9 +6,9 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const BaseScreen(
-      title: 'Ajustes',
-      body: Center(
+    return BaseScreen(
+      appBar: AppBar(title: const Text('Configuraciones')),
+      body: const Center(
         child: Text('Pantalla de ajustes'),
       )
     );

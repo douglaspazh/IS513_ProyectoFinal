@@ -15,6 +15,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _categoryController = TextEditingController();
+  final _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
 
   void _selectDate(BuildContext context) async {
@@ -37,6 +38,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         amount: double.parse(_amountController.text),
         category: _categoryController.text,
         date: DateFormat('dd-MM-yyyy').format(_selectedDate),
+        description: _descriptionController.text,
         isIncome: false
       );
 
@@ -91,6 +93,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 trailing: const Icon(Icons.calendar_today),
                 onTap: () => _selectDate(context),
               ),
+
+              // Descripcion
+              TextFormField(
+                controller: _descriptionController,
+                decoration: const InputDecoration(labelText: 'Descripción'),
+              ),
+
               const SizedBox(height: 20),
               
               // Guardar transaccion

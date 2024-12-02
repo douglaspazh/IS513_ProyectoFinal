@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 class BaseScreen extends StatelessWidget {
+  final AppBar appBar;
   final Widget body;
-  final String title;
   final FloatingActionButton? floatingActionButton;
 
-  const BaseScreen({super.key, required this.body, required this.title, this.floatingActionButton});
+  const BaseScreen({super.key,
+    required this.appBar,
+    required this.body,
+    this.floatingActionButton
+  });
 
   void _selectPage(BuildContext context, String route) {
     Navigator.of(context).popAndPushNamed(route);
@@ -14,7 +18,7 @@ class BaseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: appBar,
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,

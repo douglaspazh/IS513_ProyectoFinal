@@ -35,20 +35,54 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
-      title: 'Gestión de Gastos',
+      appBar: AppBar(title: const Text('Gestión de Gastos')),
       body: Column(
         children: [
-          const Center(
-            child: Text(
-              '¡Bienvenido a Gestión de Gastos!',
-              style: TextStyle(fontSize: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              TextButton(
+                child: const Text('Gastos'),
+                onPressed: () => {},
+              ),
+              TextButton(
+                child: const Text('Ingresos'),
+                onPressed:() => {},
+              )
+            ],
+          ),
+
+          Card(
+            margin: const EdgeInsets.all(12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                TextButton(
+                  child: const Text('Día'),
+                  onPressed: () => {},
+                ),
+                TextButton(
+                  child: const Text('Semana'),
+                  onPressed: () => {},
+                ),
+                TextButton(
+                  child: const Text('Mes'),
+                  onPressed: () => {},
+                ),
+                TextButton(
+                  child: const Text('Año'),
+                  onPressed: () => {},
+                )
+              ],
             ),
           ),
 
           Expanded(
             child: ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
               itemCount: _transactions.length,
-              itemBuilder: (ctx, index) {
+              itemBuilder: (ctx, index) { 
                 return ListTile(
                   title: Text(_transactions[index].category),
                   subtitle: Text('Monto: ${_transactions[index].amount}'),
