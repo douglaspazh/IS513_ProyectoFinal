@@ -16,7 +16,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   void _fetchTransactions() {
     setState(() {
-      _transactionList = DBHelper.instance.fetchTransactions();
+      _transactionList = DBHelper.instance.getAllTransactions();
     });
   }
 

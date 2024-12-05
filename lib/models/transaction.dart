@@ -5,6 +5,7 @@ class TransactionData {
   final String date;
   final String? description;
   final bool isIncome;
+  final int accountId;
 
   TransactionData({
     this.id,
@@ -12,7 +13,8 @@ class TransactionData {
     required this.category,
     required this.date,
     this.description,
-    required this.isIncome
+    required this.isIncome,
+    required this.accountId
   });
 
   Map<String, dynamic> toMap() {
@@ -22,7 +24,8 @@ class TransactionData {
       'category': category,
       'date': date,
       'description': description,
-      'isIncome': isIncome ? 1 : 0
+      'isIncome': isIncome ? 1 : 0,
+      'accountId': accountId
     };
   }
 
@@ -33,7 +36,8 @@ class TransactionData {
       category: map['category'],
       date: map['date'],
       description: map['description'],
-      isIncome: map['isIncome'] == 1
+      isIncome: map['isIncome'] == 1,
+      accountId: map['accountId']
     );
   }
 }

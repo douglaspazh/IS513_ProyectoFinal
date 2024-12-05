@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:money_app/models/account.dart';
 import 'package:money_app/models/transaction.dart';
+import 'package:money_app/utils/db_helper.dart';
 
 class AddTransactionScreen extends StatefulWidget {
-  final Function? onAddTransaction;
-
-  const AddTransactionScreen({super.key, this.onAddTransaction});
+  const AddTransactionScreen({super.key});
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();
@@ -17,6 +17,20 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _categoryController = TextEditingController();
   final _descriptionController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
+
+  bool _isIncome = false;
+  int? _selectedAccountId;
+  List<Account> _accounts = [];
+
+  void _loadAccounts() async {
+    final accounts = await DBHelper.instance.getAllAccounts();
+    setState(() {
+      _accounts = accounts;
+      if (_accounts.isNotEmpty) {
+        _selectedAccountId = _accounts.first.id;
+      }
+    });
+  }
 
   void _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -39,15 +53,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         category: _categoryController.text,
         date: DateFormat('dd-MM-yyyy').format(_selectedDate),
         description: _descriptionController.text,
-        isIncome: false
+        isIncome: _isIncome,
+        accountId: _selectedAccountId!,
       );
 
-      // Llamar al callback
-      if (widget.onAddTransaction != null) {
-        widget.onAddTransaction!(transaction);
-      }
+      DBHelper.instance.insertTransaction(transaction);
       Navigator.of(context).pop();
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadAccounts();
   }
 
   @override
@@ -62,6 +80,21 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           key: _formKey,
           child: Column(
             children: [
+              // Ingreso o Gasto
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  TextButton(
+                    child: const Text('Gasto'),
+                    onPressed: () => setState(() => _isIncome = false),
+                  ),
+                  TextButton(
+                    child: const Text('Ingreso'),
+                    onPressed: () => setState(() => _isIncome = true),
+                  ),
+                ],
+              ),
+
               // Monto
               TextFormField(
                 controller: _amountController,
@@ -72,6 +105,24 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                     return 'Por favor ingrese un monto';
                   }
                   return null;
+                },
+              ),
+
+              // Cuenta
+              DropdownButtonFormField(
+                value: _selectedAccountId,
+                items: _accounts.map((account) {
+                  return DropdownMenuItem(
+                    value: account.id,
+                    child: Text(account.name),
+                  );
+                }).toList(),
+                onChanged: (value) => setState(() {
+                  _selectedAccountId = value as int;
+                }),
+                decoration: const InputDecoration(labelText: 'Cuenta'),
+                validator: (value) {
+                  value == null ? 'Seleccione una cuenta' : null;
                 },
               ),
 

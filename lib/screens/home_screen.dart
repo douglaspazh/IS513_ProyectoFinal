@@ -20,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadTransactions() async {
-    final transactions = await DBHelper.instance.fetchTransactions();
+    final transactions = await DBHelper.instance.getAllTransactions();
     setState(() {
       _transactions = transactions;
     });
@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => AddTransactionScreen(onAddTransaction: _addTransaction),
+          builder: (context) => const AddTransactionScreen(),
         )),
         child: const Icon(Icons.add),
       ),
