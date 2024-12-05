@@ -14,11 +14,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<TransactionData> _transactions = [];
 
-  void _addTransaction(TransactionData transaction) async {
-    await DBHelper.instance.insertTransaction(transaction);
-    _loadTransactions();
-  }
-
   void _loadTransactions() async {
     final transactions = await DBHelper.instance.getAllTransactions();
     setState(() {

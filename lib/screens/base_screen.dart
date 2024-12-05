@@ -12,7 +12,7 @@ class BaseScreen extends StatelessWidget {
   });
 
   void _selectPage(BuildContext context, String route) {
-    Navigator.of(context).popAndPushNamed(route);
+    Navigator.of(context).pushReplacementNamed(route);
   }
 
   @override
