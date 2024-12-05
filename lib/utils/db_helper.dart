@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 import 'package:money_app/models/transaction.dart';
 
 class DBHelper {
-  static const String _databaseName = 'transactions.db';
+  static const String _databaseName = 'money_app.db';
   static const int _databaseVersion = 1;
   static const String _transactionsTableName = 'transactions';
   static const String _accountsTableName = 'accounts';
@@ -34,7 +34,7 @@ class DBHelper {
         category TEXT NOT NULL,
         date TEXT NOT NULL,
         description TEXT,
-        isIncome INTEGER NOT NULL,
+        isIncome BOOLEAN NOT NULL,
         accountId INTEGER NOT NULL,
         FOREIGN KEY (accountId) REFERENCES accounts (id) ON DELETE CASCADE
       )
@@ -45,8 +45,9 @@ class DBHelper {
     await _createAccountsTable(db);
     await _createTransactionsTable(db);
 
-    // Crear cuenta principal como cuenta por defecto
-    await db.insert('accounts', Account(name: 'Principal', balance: 0).toMap());
+    // Crear cuentas por defecto
+    await db.insert('accounts', Account(name: 'Ahorros', balance: 0).toMap());
+    await db.insert('accounts', Account(name: 'Tarjeta', balance: 0).toMap());
   }
 
   Future<Database> _initDatabase() async {
@@ -55,6 +56,7 @@ class DBHelper {
       path,
       version: _databaseVersion,
       onCreate: _onCreate,
+      onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
     );
   }
 
@@ -135,6 +137,22 @@ class DBHelper {
     );
   }
 
+  Future<double> getTotalExpense() async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      'SELECT SUM(amount) as total FROM transactions WHERE isIncome = 0'
+    );
+    return result.first['total'] as double;
+  }
+
+  Future<double> getTotalIncome() async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      'SELECT SUM(amount) as total FROM transactions WHERE isIncome = 1'
+    );
+    return result.first['total'] as double;
+  }
+
 
   // CRUD para la tabla de cuentas
   Future<Account> getAccount(int id) async {
@@ -153,7 +171,7 @@ class DBHelper {
     return List.generate(maps.length, (i) => Account.fromMap(maps[i]));
   }
 
-  Future<double> getAllBalanceFromAccounts() async {
+  Future<double> getAllBalance() async {
     final db = await database;
     final List<Map<String, dynamic>> result = await db.rawQuery(
       'SELECT SUM(balance) as total FROM accounts'
@@ -163,7 +181,10 @@ class DBHelper {
 
   Future<int> insertAccount(Account account) async {
     final db = await database;
-    return await db.insert('accounts', account.toMap());
+    return await db.insert(
+      _accountsTableName,
+      account.toMap()
+    );
   }
 
   Future<int> updateAccount(Account account) async {

@@ -1,12 +1,14 @@
 class Account {
   final int? id;
   final String name;
-  final double balance;
+  final double? balance;
+  final String? description;
 
   Account({
     this.id,
     required this.name,
-    required this.balance
+    this.balance,
+    this.description,
   });
 
   Map<String, dynamic> toMap() {
@@ -22,6 +24,7 @@ class Account {
       id: map['id'],
       name: map['name'],
       balance: map['balance'],
+      description: map['description'],
     );
   }
 }
