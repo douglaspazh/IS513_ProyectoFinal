@@ -123,6 +123,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 decoration: const InputDecoration(labelText: 'Cuenta'),
                 validator: (value) {
                   value == null ? 'Seleccione una cuenta' : null;
+                  return null;
                 },
               ),
 

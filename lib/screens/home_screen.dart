@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:money_app/models/transaction.dart';
-import 'package:money_app/screens/add_transaction_screen.dart';
+import 'package:money_app/screens/add/add_transaction_screen.dart';
 import 'package:money_app/screens/base_screen.dart';
 import 'package:money_app/utils/db_helper.dart';
 
@@ -94,10 +94,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => const AddTransactionScreen(),
         )),
-        child: const Icon(Icons.add),
       ),
     );
   }

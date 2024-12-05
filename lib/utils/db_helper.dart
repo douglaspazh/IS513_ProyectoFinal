@@ -153,6 +153,14 @@ class DBHelper {
     return List.generate(maps.length, (i) => Account.fromMap(maps[i]));
   }
 
+  Future<double> getAllBalanceFromAccounts() async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      'SELECT SUM(balance) as total FROM accounts'
+    );
+    return result.first['total'] as double;
+  }
+
   Future<int> insertAccount(Account account) async {
     final db = await database;
     return await db.insert('accounts', account.toMap());
