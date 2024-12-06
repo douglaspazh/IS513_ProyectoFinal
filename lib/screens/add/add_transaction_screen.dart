@@ -36,8 +36,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      firstDate: DateTime(2001),
+      lastDate: DateTime.now(),
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -58,6 +58,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       );
 
       DBHelper.instance.insertTransaction(transaction);
+      DBHelper.instance.updateAccountBalance(transaction.accountId, transaction.amount, transaction.isIncome);
+
       Navigator.pop(context, true);
     }
   }

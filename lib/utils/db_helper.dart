@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:money_app/models/account.dart';
+import 'package:money_app/models/category.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:money_app/models/transaction.dart';
@@ -9,6 +10,7 @@ class DBHelper {
   static const int _databaseVersion = 1;
   static const String _transactionsTableName = 'transactions';
   static const String _accountsTableName = 'accounts';
+  static const String _categoriesTableName = 'categories';
 
   DBHelper._privateConstructor();
   static final DBHelper instance = DBHelper._privateConstructor();
@@ -145,7 +147,7 @@ class DBHelper {
     final List<Map<String, dynamic>> maps = await db.query(
       _transactionsTableName,
       where: 'isIncome = ? AND date BETWEEN ? AND ?',
-      whereArgs: [typeFilter == 'income' ? 1 : 0, startDate, endDate],
+      whereArgs: [typeFilter == 'incomes' ? 1 : 0, startDate, endDate],
     );
     return List.generate(maps.length, (i) => TransactionData.fromMap(maps[i]));
   }
@@ -229,10 +231,67 @@ class DBHelper {
     );
   }
 
+  Future<int> updateAccountBalance(int id, double amount, bool isIncome) async {
+    final db = await database;
+    final account = await getAccount(id);
+    final newBalance = isIncome ? account.balance! + amount : account.balance! - amount;
+    return await db.update(
+      _accountsTableName,
+      {'balance': newBalance},
+      where: 'id = ?',
+      whereArgs: [id]
+    );
+  }
+
   Future<int> deleteAccount(int id) async {
     final db = await database;
     return await db.delete(
       _accountsTableName,
+      where: 'id = ?',
+      whereArgs: [id]
+    );
+  }
+
+
+  // CRUD para la tabla de categorías
+  Future<Category> getCategory(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      _categoriesTableName,
+      where: 'id = ?',
+      whereArgs: [id]
+    );
+    return Category.fromMap(maps.first);
+  }
+
+  Future<List<Category>> getAllCategories() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(_categoriesTableName);
+    return List.generate(maps.length, (i) => Category.fromMap(maps[i]));
+  }
+
+  Future<int> insertCategory(Category category) async {
+    final db = await database;
+    return await db.insert(
+      _categoriesTableName,
+      category.toMap()
+    );
+  }
+
+  Future<int> updateCategory(Category category) async {
+    final db = await database;
+    return await db.update(
+      _categoriesTableName,
+      category.toMap(),
+      where: 'id = ?',
+      whereArgs: [category.id]
+    );
+  }
+
+  Future<int> deleteCategory(int id) async {
+    final db = await database;
+    return await db.delete(
+      _categoriesTableName,
       where: 'id = ?',
       whereArgs: [id]
     );

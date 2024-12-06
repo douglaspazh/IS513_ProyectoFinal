@@ -12,7 +12,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _filter = 'expense';
+  String _filter = 'expenses';
   String _timeFilter = 'month';
 
   @override
@@ -27,19 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               TextButton(
                 child: const Text('Gastos'),
-                onPressed: () {
-                  setState(() {
-                    _filter = 'expense';
-                  });
-                },
+                onPressed: () => setState(() => _filter = 'expenses'),
               ),
               TextButton(
                 child: const Text('Ingresos'),
-                onPressed:() {
-                  setState(() {
-                    _filter = 'income';
-                  });
-                },
+                onPressed: () => setState(() => _filter = 'incomes'),
               )
             ],
           ),
