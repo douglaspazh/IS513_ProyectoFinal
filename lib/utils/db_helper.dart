@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:money_app/models/account.dart';
 import 'package:money_app/models/category.dart';
@@ -23,7 +24,10 @@ class DBHelper {
       CREATE TABLE accounts(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        balance REAL NOT NULL DEFAULT 0
+        balance REAL NOT NULL DEFAULT 0,
+        iconCode TEXT NOT NULL,
+        iconColor INTEGER NOT NULL,
+        description TEXT
       )
     ''');
   }
@@ -49,8 +53,18 @@ class DBHelper {
     await _createTransactionsTable(db);
 
     // Crear cuentas por defecto
-    await db.insert('accounts', Account(name: 'Ahorros', balance: 0).toMap());
-    await db.insert('accounts', Account(name: 'Tarjeta', balance: 0).toMap());
+    await db.insert('accounts', Account(
+      name: 'Ahorros',
+      balance: 0,
+      iconCode: 'money_bag',
+      iconColor: Colors.green[300]!.value
+    ).toMap());
+    await db.insert('accounts', Account(
+      name: 'Tarjeta',
+      balance: 0,
+      iconCode: 'credit_card',
+      iconColor: Colors.blueGrey[300]!.value
+    ).toMap());
   }
 
   Future<Database> _initDatabase() async {

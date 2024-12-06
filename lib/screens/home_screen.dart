@@ -74,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                if (snapshot.data!.isEmpty || !snapshot.hasData) {
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return const Center(child: Text('No hay transacciones registradas'));
                 }
                 return ListView.builder(
