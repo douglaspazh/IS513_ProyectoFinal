@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:money_app/models/account.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -114,6 +115,37 @@ class DBHelper {
       _transactionsTableName,
       where: 'accountId = ?',
       whereArgs: [accountId],
+    );
+    return List.generate(maps.length, (i) => TransactionData.fromMap(maps[i]));
+  }
+
+  Future<List<TransactionData>> getTransactionsByFilter(String typeFilter, String dateFilter) async {
+    final db = await database;
+
+    final DateTime now = DateTime.now();
+    final DateTime startDate0;
+
+    switch (dateFilter) {
+      case 'day':
+        startDate0 = now;
+      case 'week':
+        int currentWeekday = now.weekday;
+        startDate0 = now.subtract(Duration(days: currentWeekday));
+      case 'month':
+        startDate0 = DateTime(now.year, now.month, 1);
+      case 'year':
+        startDate0 = DateTime(now.year, 1, 1);
+      default:
+        startDate0 = DateTime(now.year, now.month, 1);
+    }
+
+    final startDate = DateFormat('yyyy-MM-dd').format(startDate0);
+    final endDate = DateFormat('yyyy-MM-dd').format(now);
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      _transactionsTableName,
+      where: 'isIncome = ? AND date BETWEEN ? AND ?',
+      whereArgs: [typeFilter == 'income' ? 1 : 0, startDate, endDate],
     );
     return List.generate(maps.length, (i) => TransactionData.fromMap(maps[i]));
   }

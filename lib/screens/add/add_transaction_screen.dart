@@ -51,14 +51,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       final transaction = TransactionData(
         amount: double.parse(_amountController.text),
         category: _categoryController.text,
-        date: DateFormat('dd-MM-yyyy').format(_selectedDate),
+        date: DateFormat('yyyy-MM-dd').format(_selectedDate),
         description: _descriptionController.text,
         isIncome: _isIncome,
         accountId: _selectedAccountId!,
       );
 
       DBHelper.instance.insertTransaction(transaction);
-      Navigator.of(context).pop();
+      Navigator.pop(context, true);
     }
   }
 

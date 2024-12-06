@@ -12,20 +12,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<TransactionData> _transactions = [];
-
-  void _loadTransactions() async {
-    final transactions = await DBHelper.instance.getAllTransactions();
-    setState(() {
-      _transactions = transactions;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadTransactions();
-  }
+  String _filter = 'expense';
+  String _timeFilter = 'month';
 
   @override
   Widget build(BuildContext context) {
@@ -33,20 +21,30 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(title: const Text('Gestión de Gastos')),
       body: Column(
         children: [
+          // Filtro de transacciones
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               TextButton(
                 child: const Text('Gastos'),
-                onPressed: () => {},
+                onPressed: () {
+                  setState(() {
+                    _filter = 'expense';
+                  });
+                },
               ),
               TextButton(
                 child: const Text('Ingresos'),
-                onPressed:() => {},
+                onPressed:() {
+                  setState(() {
+                    _filter = 'income';
+                  });
+                },
               )
             ],
           ),
 
+          // Filtro de tiempo
           Card(
             margin: const EdgeInsets.all(12),
             child: Row(
@@ -54,34 +52,49 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 TextButton(
                   child: const Text('Día'),
-                  onPressed: () => {},
+                  onPressed: () => setState(() => _timeFilter = 'day'),
                 ),
                 TextButton(
                   child: const Text('Semana'),
-                  onPressed: () => {},
+                  onPressed: () => setState(() => _timeFilter = 'week'),
                 ),
                 TextButton(
                   child: const Text('Mes'),
-                  onPressed: () => {},
+                  onPressed: () => setState(() => _timeFilter = 'month'),
                 ),
                 TextButton(
                   child: const Text('Año'),
-                  onPressed: () => {},
+                  onPressed: () => setState(() => _timeFilter = 'year'),
+                ),
+                TextButton(
+                  child: const Text('Periodo'),
+                  onPressed: () {},
                 )
               ],
             ),
           ),
 
+          // Lista de transacciones
           Expanded(
-            child: ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: _transactions.length,
-              itemBuilder: (ctx, index) { 
-                return ListTile(
-                  title: Text(_transactions[index].category),
-                  subtitle: Text('Monto: ${_transactions[index].amount}'),
-                  trailing: Text(_transactions[index].date),
+            child: FutureBuilder(
+              future: DBHelper.instance.getTransactionsByFilter(_filter, _timeFilter),
+              builder: (context, AsyncSnapshot<List<TransactionData>> snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.data!.isEmpty || !snapshot.hasData) {
+                  return const Center(child: Text('No hay transacciones registradas'));
+                }
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    final transaction = snapshot.data![index];
+                    return ListTile(
+                      title: Text(transaction.category),
+                      subtitle: Text(transaction.amount.toString()),
+                      trailing: Text(transaction.date),
+                    );
+                  },
                 );
               },
             ),
@@ -90,9 +103,22 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => const AddTransactionScreen(),
-        )),
+        onPressed: () async {
+          bool? result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddTransactionScreen()
+            ),
+          );
+
+          // Actualizar la lista de transacciones
+          if (result == true) {
+            setState(() {
+              _filter = _filter;
+              _timeFilter = _timeFilter;
+            });
+          }
+        }
       ),
     );
   }
