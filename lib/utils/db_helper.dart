@@ -64,22 +64,19 @@ class DBHelper {
     ''');
   }
 
-  Future<void> _onCreate(Database db, int version) async {
-    // Crear tablas
-    await _createAccountsTable(db);
-    await _createCategoriesTable(db);
-    await _createTransactionsTable(db);
-
+  Future<void> _createDefaultData(Database db) async {
     // Crear cuentas por defecto
     await db.insert('accounts', Account(
       name: 'Ahorros',
       balance: 0,
+      currency: 'HNL',
       iconCode: 'money_bag',
       iconColor: Colors.green[300]!.value
     ).toMap());
     await db.insert('accounts', Account(
       name: 'Tarjeta',
       balance: 0,
+      currency: 'HNL',
       iconCode: 'credit_card',
       iconColor: Colors.blueGrey[300]!.value
     ).toMap());
@@ -91,13 +88,22 @@ class DBHelper {
       iconCode: 'burger',
       iconColor: Colors.green[300]!.value
     ).toMap());
-
     await db.insert('categories', Category(
       name: 'Salario',
       type: 'incomes',
       iconCode: 'salary',
       iconColor: Colors.green[300]!.value
     ).toMap());
+  }
+
+  Future<void> _onCreate(Database db, int version) async {
+    // Crear tablas
+    await _createAccountsTable(db);
+    await _createCategoriesTable(db);
+    await _createTransactionsTable(db);
+
+    // Crear datos por defecto
+    await _createDefaultData(db);
   }
 
   Future<Database> _initDatabase() async {
@@ -223,7 +229,10 @@ class DBHelper {
     final List<Map<String, dynamic>> result = await db.rawQuery(
       'SELECT SUM(amount) as total FROM transactions WHERE isIncome = 0'
     );
-    return result.first['total'] as double;
+    if (result.isEmpty || result.first['total'] == null) {
+      return 0;
+    }
+    return Future<double>.value(result.first['total']);
   }
 
   Future<double> getTotalIncome() async {
@@ -231,7 +240,10 @@ class DBHelper {
     final List<Map<String, dynamic>> result = await db.rawQuery(
       'SELECT SUM(amount) as total FROM transactions WHERE isIncome = 1'
     );
-    return result.first['total'] as double;
+    if (result.isEmpty || result.first['total'] == null) {
+      return 0;
+    }
+    return Future<double>.value(result.first['total']);
   }
 
 
@@ -257,7 +269,11 @@ class DBHelper {
     final List<Map<String, dynamic>> result = await db.rawQuery(
       'SELECT SUM(balance) as total FROM accounts'
     );
-    return result.first['total'] as double;
+
+    if (result.isEmpty || result.first['total'] == null) {
+      return 0;
+    }
+    return Future<double>.value(result.first['total']);
   }
 
   Future<int> insertAccount(Account account) async {

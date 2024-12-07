@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:money_app/models/category.dart';
 import 'package:money_app/models/transaction.dart';
 import 'package:money_app/screens/add/add_transaction_screen.dart';
 import 'package:money_app/screens/base_screen.dart';
 import 'package:money_app/utils/db_helper.dart';
+import 'package:money_app/utils/icons.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -79,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return const Center(child: Text('No hay transacciones registradas'));
                 }
                 return ListView.builder(
+                  padding: const EdgeInsets.all(8),
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     final transaction = snapshot.data![index];
@@ -97,10 +100,24 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         }
                         final category = categorySnapshot.data!;
-                        return ListTile(
-                          title: Text(category.name),
-                          subtitle: Text(transaction.amount.toString()),
-                          trailing: Text(transaction.date),
+                        return SizedBox(
+                          height: 64,
+                          child: Card(
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 8),
+                                CircleAvatar(
+                                  backgroundColor: Color(category.iconColor),
+                                  child: FaIcon(categoryIcons[category.iconCode], color: Colors.white),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(category.name),
+                                const Spacer(),
+                                Text(transaction.amount.toString()),
+                                const SizedBox(width: 8),
+                              ],
+                            ),
+                          ),
                         );
                       },
                     );

@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:money_app/models/account.dart';
 import 'package:money_app/screens/add/add_account_screen.dart';
 import 'package:money_app/screens/base_screen.dart';
+import 'package:money_app/utils/currencies.dart';
 import 'package:money_app/utils/db_helper.dart';
 import 'package:money_app/utils/icons.dart';
 
@@ -14,6 +15,13 @@ class AccountsScreen extends StatefulWidget {
 }
 
 class _AccountsScreenState extends State<AccountsScreen> {
+  getFormattedBalance(double balance) {
+    if (balance % 1 == 0) {
+      return balance.toStringAsFixed(0);
+    } else {
+      return balance.toStringAsFixed(2);
+    }
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -29,13 +37,31 @@ class _AccountsScreenState extends State<AccountsScreen> {
               return const Center(child: Text('No hay cuentas'));
             }
             return ListView.builder(
+              padding: const EdgeInsets.all(12),
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
                 final account = snapshot.data![index];
-                return ListTile(
-                  leading: FaIcon(accountIcons[account.iconCode], color: Color(account.iconColor)),
-                  title: Text(account.name),
-                  trailing: Text(account.balance.toString()),
+                return SizedBox(
+                  height: 60,
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 12),
+                        CircleAvatar(
+                          backgroundColor: Color(account.iconColor),
+                          child: FaIcon(getIconData(account.iconCode), color: Colors.white, size: 22),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(account.name),
+                        const Spacer(),
+                        Text("${getCurrencySymbol(account.currency)} ${getFormattedBalance(account.balance!)}"),
+                        const SizedBox(width: 12),
+                      ],
+                    ),
+                  ),
                 );
               },
             );

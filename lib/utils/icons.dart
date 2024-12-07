@@ -16,6 +16,7 @@ const Map<String, IconData> accountIcons = {
   'euro_sign': FontAwesomeIcons.euroSign,
   'btc_sign': FontAwesomeIcons.btc,
   'eth_sign': FontAwesomeIcons.ethereum,
+  'other': FontAwesomeIcons.circleQuestion,
 };
 
 const Map<String, IconData> categoryIcons = {
@@ -28,4 +29,15 @@ const Map<String, IconData> categoryIcons = {
   // Alimentación
   'burger': FontAwesomeIcons.burger,
   'water_bottle': FontAwesomeIcons.bottleWater,
+
+  'other': FontAwesomeIcons.circleQuestion,
 };
+
+getIconData(String iconCode) {
+  if (accountIcons.containsKey(iconCode)) {
+    return accountIcons[iconCode];
+  } else if (categoryIcons.containsKey(iconCode)) {
+    return categoryIcons[iconCode];
+  }
+  return categoryIcons['other'];
+}

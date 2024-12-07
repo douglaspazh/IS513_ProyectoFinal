@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 List colorList = [
-  Colors.amber[100],
   Colors.teal[300],
   Colors.green[300],
   Colors.red[400],
@@ -9,3 +8,7 @@ List colorList = [
   Colors.purple[300],
   Colors.orange[300],
 ];
+
+List allColors = Colors.primaries.expand(
+  (color) => List.generate(10, (shade) => color[shade * 100]).where((c) => c != null)
+).toList();
