@@ -39,7 +39,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
         description: _descriptionController.text,
       );
       DBHelper.instance.insertCategory(category);
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
     }
   }
 
