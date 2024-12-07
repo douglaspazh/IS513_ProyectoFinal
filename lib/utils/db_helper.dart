@@ -25,6 +25,7 @@ class DBHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         balance REAL NOT NULL DEFAULT 0,
+        currency TEXT NOT NULL,
         iconCode TEXT NOT NULL,
         iconColor INTEGER NOT NULL,
         description TEXT
