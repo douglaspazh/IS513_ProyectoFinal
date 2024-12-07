@@ -5,6 +5,7 @@ import 'package:money_app/models/category.dart';
 import 'package:money_app/models/transaction.dart';
 import 'package:money_app/screens/add/add_transaction_screen.dart';
 import 'package:money_app/screens/base_screen.dart';
+import 'package:money_app/utils/common_funcs.dart';
 import 'package:money_app/utils/db_helper.dart';
 import 'package:money_app/utils/icons.dart';
 
@@ -18,14 +19,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String _filter = 'expenses';
   String _timeFilter = 'month';
-
-  getFormattedBalance(double balance) {
-    if (balance % 1 == 0) {
-      return balance.toStringAsFixed(0);
-    } else {
-      return balance.toStringAsFixed(2);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,14 +71,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
+                // Gráfico de pastel
                 Stack(
                   children: [
                     FutureBuilder(
-                      future: DBHelper.instance.getCategoryData(_filter),
+                      future: DBHelper.instance.getCategoryData(_filter, getDateRange(_timeFilter)),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const Center(child: CircularProgressIndicator());
                         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          print(snapshot.data);
                           return SizedBox(
                             height: 250,
                             child: PieChart(
@@ -123,10 +118,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
                       },
                     ),
+                    // Balance total de transacciones
                     Positioned.fill(
                       child: Center(
                         child: FutureBuilder<double>(
-                          future: DBHelper.instance.getBalanceByFilter(_filter, _timeFilter),
+                          future: DBHelper.instance.getBalanceByFilter(_filter, getDateRange(_timeFilter)),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
                               return const CircularProgressIndicator();
@@ -148,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Lista de transacciones
           Expanded(
             child: FutureBuilder(
-              future: DBHelper.instance.getTransactionsByFilter(_filter, _timeFilter),
+              future: DBHelper.instance.getTransactionsByFilter(_filter, getDateRange(_timeFilter)),
               builder: (context, AsyncSnapshot<List<TransactionData>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());

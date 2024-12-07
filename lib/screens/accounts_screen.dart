@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:money_app/models/account.dart';
 import 'package:money_app/screens/add/add_account_screen.dart';
 import 'package:money_app/screens/base_screen.dart';
+import 'package:money_app/utils/common_funcs.dart';
 import 'package:money_app/utils/currencies.dart';
 import 'package:money_app/utils/db_helper.dart';
 import 'package:money_app/utils/icons.dart';
@@ -15,13 +16,6 @@ class AccountsScreen extends StatefulWidget {
 }
 
 class _AccountsScreenState extends State<AccountsScreen> {
-  getFormattedBalance(double balance) {
-    if (balance % 1 == 0) {
-      return balance.toStringAsFixed(0);
-    } else {
-      return balance.toStringAsFixed(2);
-    }
-  }
   
   @override
   Widget build(BuildContext context) {

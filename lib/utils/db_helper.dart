@@ -174,33 +174,12 @@ class DBHelper {
     return List.generate(maps.length, (i) => TransactionData.fromMap(maps[i]));
   }
 
-  Future<List<TransactionData>> getTransactionsByFilter(String typeFilter, String dateFilter) async {
+  Future<List<TransactionData>> getTransactionsByFilter(String typeFilter, List dateRange) async {
     final db = await database;
-
-    final DateTime now = DateTime.now();
-    final DateTime startDate0;
-
-    switch (dateFilter) {
-      case 'day':
-        startDate0 = now;
-      case 'week':
-        int currentWeekday = now.weekday;
-        startDate0 = now.subtract(Duration(days: currentWeekday));
-      case 'month':
-        startDate0 = DateTime(now.year, now.month, 1);
-      case 'year':
-        startDate0 = DateTime(now.year, 1, 1);
-      default:
-        startDate0 = DateTime(now.year, now.month, 1);
-    }
-
-    final startDate = DateFormat('yyyy-MM-dd').format(startDate0);
-    final endDate = DateFormat('yyyy-MM-dd').format(now);
-
     final List<Map<String, dynamic>> maps = await db.query(
       _transactionsTableName,
       where: 'isIncome = ? AND date BETWEEN ? AND ?',
-      whereArgs: [typeFilter == 'incomes' ? 1 : 0, startDate, endDate],
+      whereArgs: [typeFilter == 'incomes' ? 1 : 0, dateRange[0], dateRange[1]]
     );
     return List.generate(maps.length, (i) => TransactionData.fromMap(maps[i]));
   }
@@ -246,32 +225,11 @@ class DBHelper {
     return Future<double>.value(result.first['total']);
   }
 
-  Future<double> getBalanceByFilter(String typeFilter, String dateFilter) async {
+  Future<double> getBalanceByFilter(String typeFilter, List dateRange) async {
     final db = await database;
-
-    final DateTime now = DateTime.now();
-    final DateTime startDate0;
-
-    switch (dateFilter) {
-      case 'day':
-        startDate0 = now;
-      case 'week':
-        int currentWeekday = now.weekday;
-        startDate0 = now.subtract(Duration(days: currentWeekday));
-      case 'month':
-        startDate0 = DateTime(now.year, now.month, 1);
-      case 'year':
-        startDate0 = DateTime(now.year, 1, 1);
-      default:
-        startDate0 = DateTime(now.year, now.month, 1);
-    }
-
-    final startDate = DateFormat('yyyy-MM-dd').format(startDate0);
-    final endDate = DateFormat('yyyy-MM-dd').format(now);
-
     final List<Map<String, dynamic>> result = await db.rawQuery(
       'SELECT SUM(amount) as total FROM transactions WHERE isIncome = ? AND date BETWEEN ? AND ?',
-      [typeFilter == 'incomes' ? 1 : 0, startDate, endDate]
+      [typeFilter == 'incomes' ? 1 : 0, dateRange[0], dateRange[1]]
     );
 
     if (result.isEmpty || result.first['total'] == null) {
@@ -280,15 +238,17 @@ class DBHelper {
     return Future<double>.value(result.first['total']);
   }
 
-  Future<Map<String, Map<String, dynamic>>> getCategoryData(String filterType) async {
+  Future<Map<String, Map<String, dynamic>>> getCategoryData(String filterType, List dateRange) async {
     final db = await database;
     final List<Map<String, dynamic>> result = await db.rawQuery('''
       SELECT c.name, c.iconColor, SUM(t.amount) as total
       FROM transactions t
       JOIN categories c ON t.categoryId = c.id
+      WHERE t.date BETWEEN ? AND ?
       GROUP BY c.name, c.iconColor
-      HAVING t.isIncome = ${filterType == 'incomes' ? 1 : 0}
-    ''');
+      HAVING t.isIncome = ?
+    ''', [dateRange[0], dateRange[1], filterType == 'incomes' ? 1 : 0]
+    );
     return {
       for (var e in result)
         e['name']: {
