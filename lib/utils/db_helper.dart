@@ -246,6 +246,58 @@ class DBHelper {
     return Future<double>.value(result.first['total']);
   }
 
+  Future<double> getBalanceByFilter(String typeFilter, String dateFilter) async {
+    final db = await database;
+
+    final DateTime now = DateTime.now();
+    final DateTime startDate0;
+
+    switch (dateFilter) {
+      case 'day':
+        startDate0 = now;
+      case 'week':
+        int currentWeekday = now.weekday;
+        startDate0 = now.subtract(Duration(days: currentWeekday));
+      case 'month':
+        startDate0 = DateTime(now.year, now.month, 1);
+      case 'year':
+        startDate0 = DateTime(now.year, 1, 1);
+      default:
+        startDate0 = DateTime(now.year, now.month, 1);
+    }
+
+    final startDate = DateFormat('yyyy-MM-dd').format(startDate0);
+    final endDate = DateFormat('yyyy-MM-dd').format(now);
+
+    final List<Map<String, dynamic>> result = await db.rawQuery(
+      'SELECT SUM(amount) as total FROM transactions WHERE isIncome = ? AND date BETWEEN ? AND ?',
+      [typeFilter == 'incomes' ? 1 : 0, startDate, endDate]
+    );
+
+    if (result.isEmpty || result.first['total'] == null) {
+      return 0;
+    }
+    return Future<double>.value(result.first['total']);
+  }
+
+  Future<Map<String, Map<String, dynamic>>> getCategoryData(String filterType) async {
+    final db = await database;
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+      SELECT c.name, c.iconColor, SUM(t.amount) as total
+      FROM transactions t
+      JOIN categories c ON t.categoryId = c.id
+      GROUP BY c.name, c.iconColor
+      HAVING t.isIncome = ${filterType == 'incomes' ? 1 : 0}
+    ''');
+    return {
+      for (var e in result)
+        e['name']: {
+          'total': e['total'],
+          'iconColor': e['iconColor']
+        }
+    };
+  }
+
 
   // CRUD para la tabla de cuentas
   Future<Account> getAccount(int id) async {
@@ -264,7 +316,7 @@ class DBHelper {
     return List.generate(maps.length, (i) => Account.fromMap(maps[i]));
   }
 
-  Future<double> getAllBalance() async {
+  Future<double> getTotalBalance() async {
     final db = await database;
     final List<Map<String, dynamic>> result = await db.rawQuery(
       'SELECT SUM(balance) as total FROM accounts'
@@ -333,12 +385,12 @@ class DBHelper {
     return List.generate(maps.length, (i) => Category.fromMap(maps[i]));
   }
 
-  Future<List<Category>> getCategoriesByType(String type) async {
+  Future<List<Category>> getCategoriesByType(String typeFilter) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       _categoriesTableName,
       where: 'type = ?',
-      whereArgs: [type]
+      whereArgs: [typeFilter]
     );
     return List.generate(maps.length, (i) => Category.fromMap(maps[i]));
   }

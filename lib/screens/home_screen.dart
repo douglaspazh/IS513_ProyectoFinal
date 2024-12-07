@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:money_app/models/category.dart';
@@ -17,6 +18,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String _filter = 'expenses';
   String _timeFilter = 'month';
+
+  getFormattedBalance(double balance) {
+    if (balance % 1 == 0) {
+      return balance.toStringAsFixed(0);
+    } else {
+      return balance.toStringAsFixed(2);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,28 +51,95 @@ class _HomeScreenState extends State<HomeScreen> {
           // Filtro de tiempo
           Card(
             margin: const EdgeInsets.all(12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+            child: Column(
               children: [
-                TextButton(
-                  child: const Text('Día'),
-                  onPressed: () => setState(() => _timeFilter = 'day'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    TextButton(
+                      child: const Text('Día'),
+                      onPressed: () => setState(() => _timeFilter = 'day'),
+                    ),
+                    TextButton(
+                      child: const Text('Semana'),
+                      onPressed: () => setState(() => _timeFilter = 'week'),
+                    ),
+                    TextButton(
+                      child: const Text('Mes'),
+                      onPressed: () => setState(() => _timeFilter = 'month'),
+                    ),
+                    TextButton(
+                      child: const Text('Año'),
+                      onPressed: () => setState(() => _timeFilter = 'year'),
+                    ),
+                    TextButton(
+                      child: const Text('Periodo'),
+                      onPressed: () {},
+                    ),
+                  ],
                 ),
-                TextButton(
-                  child: const Text('Semana'),
-                  onPressed: () => setState(() => _timeFilter = 'week'),
-                ),
-                TextButton(
-                  child: const Text('Mes'),
-                  onPressed: () => setState(() => _timeFilter = 'month'),
-                ),
-                TextButton(
-                  child: const Text('Año'),
-                  onPressed: () => setState(() => _timeFilter = 'year'),
-                ),
-                TextButton(
-                  child: const Text('Periodo'),
-                  onPressed: () {},
+                Stack(
+                  children: [
+                    FutureBuilder(
+                      future: DBHelper.instance.getCategoryData(_filter),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return SizedBox(
+                            height: 250,
+                            child: PieChart(
+                              PieChartData(
+                                sections: [
+                                  PieChartSectionData(
+                                    showTitle: false,
+                                    color: Colors.grey,
+                                    value: 1,
+                                  ),
+                                ],
+                                centerSpaceRadius: 70,
+                              ),
+                            ),
+                          );
+                        } else {
+                          final data = snapshot.data!;
+                          final sections = data.entries.map((entry) {
+                            return PieChartSectionData(
+                              showTitle: false,
+                              color: Color(entry.value['iconColor']),
+                              value: entry.value['total'],
+                            );
+                          }).toList();
+                          return SizedBox(
+                            height: 250,
+                            child: PieChart(
+                              PieChartData(
+                                sections: sections,
+                                centerSpaceRadius: 70,
+                                sectionsSpace: 2,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    Positioned.fill(
+                      child: Center(
+                        child: FutureBuilder<double>(
+                          future: DBHelper.instance.getBalanceByFilter(_filter, _timeFilter),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (!snapshot.hasData) {
+                              return const Text('No hay transacciones');
+                            } else {
+                              return Text(snapshot.data!.toStringAsFixed(2));
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 )
               ],
             ),
