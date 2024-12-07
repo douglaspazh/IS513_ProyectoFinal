@@ -1,7 +1,7 @@
 class TransactionData {
   final int? id;
   final double amount;
-  final String category;
+  final int categoryId;
   final String date;
   final String? description;
   final bool isIncome;
@@ -10,7 +10,7 @@ class TransactionData {
   TransactionData({
     this.id,
     required this.amount,
-    required this.category,
+    required this.categoryId,
     required this.date,
     this.description,
     required this.isIncome,
@@ -21,7 +21,7 @@ class TransactionData {
     return {
       'id': id,
       'amount': amount,
-      'category': category,
+      'categoryId': categoryId,
       'date': date,
       'description': description,
       'isIncome': isIncome ? 1 : 0,
@@ -33,7 +33,7 @@ class TransactionData {
     return TransactionData(
       id: map['id'],
       amount: map['amount'],
-      category: map['category'],
+      categoryId: map['categoryId'],
       date: map['date'],
       description: map['description'],
       isIncome: map['isIncome'] == 1,

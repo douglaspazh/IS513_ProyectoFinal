@@ -33,24 +33,41 @@ class DBHelper {
     ''');
   }
 
+  // Creación de la tabla de categorías
+  Future<void> _createCategoriesTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE categories(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        type TEXT NOT NULL,
+        iconCode TEXT NOT NULL,
+        iconColor INTEGER NOT NULL,
+        description TEXT
+      )
+    ''');
+  }
+
   // Creación de la tabla de transacciones
   Future<void> _createTransactionsTable(Database db) async {
     await db.execute('''
       CREATE TABLE transactions(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         amount REAL NOT NULL,
-        category TEXT NOT NULL,
+        categoryId INTEGER NOT NULL,
         date TEXT NOT NULL,
         description TEXT,
         isIncome BOOLEAN NOT NULL,
         accountId INTEGER NOT NULL,
-        FOREIGN KEY (accountId) REFERENCES accounts (id) ON DELETE CASCADE
+        FOREIGN KEY (accountId) REFERENCES accounts (id) ON DELETE CASCADE,
+        FOREIGN KEY (categoryId) REFERENCES categories (id) ON DELETE CASCADE
       )
     ''');
   }
 
   Future<void> _onCreate(Database db, int version) async {
+    // Crear tablas
     await _createAccountsTable(db);
+    await _createCategoriesTable(db);
     await _createTransactionsTable(db);
 
     // Crear cuentas por defecto
@@ -65,6 +82,21 @@ class DBHelper {
       balance: 0,
       iconCode: 'credit_card',
       iconColor: Colors.blueGrey[300]!.value
+    ).toMap());
+
+    // Crear categorías por defecto
+    await db.insert('categories', Category(
+      name: 'Comida Rápida',
+      type: 'expenses',
+      iconCode: 'burger',
+      iconColor: Colors.green[300]!.value
+    ).toMap());
+
+    await db.insert('categories', Category(
+      name: 'Salario',
+      type: 'incomes',
+      iconCode: 'salary',
+      iconColor: Colors.green[300]!.value
     ).toMap());
   }
 
@@ -110,7 +142,7 @@ class DBHelper {
       transaction = TransactionData(
         id: transaction.id,
         amount: transaction.amount,
-        category: transaction.category,
+        categoryId: transaction.categoryId,
         date: transaction.date,
         description: transaction.description,
         isIncome: transaction.isIncome,
@@ -269,7 +301,7 @@ class DBHelper {
 
 
   // CRUD para la tabla de categorías
-  Future<Category> getCategory(int id) async {
+  Future<Category> getCategoryById(int id) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       _categoriesTableName,
@@ -282,6 +314,16 @@ class DBHelper {
   Future<List<Category>> getAllCategories() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(_categoriesTableName);
+    return List.generate(maps.length, (i) => Category.fromMap(maps[i]));
+  }
+
+  Future<List<Category>> getCategoriesByType(String type) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      _categoriesTableName,
+      where: 'type = ?',
+      whereArgs: [type]
+    );
     return List.generate(maps.length, (i) => Category.fromMap(maps[i]));
   }
 

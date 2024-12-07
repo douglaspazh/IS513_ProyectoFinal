@@ -57,7 +57,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   itemBuilder: (context, index) {
                     final transaction = snapshot.data![index];
                     return ListTile(
-                      title: Text(transaction.category),
+                      title: Text(transaction.categoryId.toString()),
                       subtitle: Text(transaction.date),
                       trailing: Text(transaction.amount.toString()),
                     );

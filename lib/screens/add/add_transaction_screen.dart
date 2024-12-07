@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:money_app/models/account.dart';
+import 'package:money_app/models/category.dart';
 import 'package:money_app/models/transaction.dart';
 import 'package:money_app/utils/db_helper.dart';
 
@@ -14,20 +15,31 @@ class AddTransactionScreen extends StatefulWidget {
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
-  final _categoryController = TextEditingController();
   final _descriptionController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate = DateTime.now();
+  int? _selectedAccountId;
+  int? _selectedCategoryId;
 
   bool _isIncome = false;
-  int? _selectedAccountId;
   List<Account> _accounts = [];
+  List<Category> _categories = [];
 
   void _loadAccounts() async {
     final accounts = await DBHelper.instance.getAllAccounts();
     setState(() {
       _accounts = accounts;
       if (_accounts.isNotEmpty) {
-        _selectedAccountId = _accounts.first.id;
+        _selectedAccountId = _accounts.first.id!;
+      }
+    });
+  }
+
+  void _loadCategories() async {
+    final categories = await DBHelper.instance.getAllCategories();
+    setState(() {
+      _categories = categories;
+      if (_categories.isNotEmpty) {
+        _selectedCategoryId = _categories.first.id!;
       }
     });
   }
@@ -50,11 +62,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     if (_formKey.currentState!.validate()) {
       final transaction = TransactionData(
         amount: double.parse(_amountController.text),
-        category: _categoryController.text,
-        date: DateFormat('yyyy-MM-dd').format(_selectedDate),
-        description: _descriptionController.text,
-        isIncome: _isIncome,
         accountId: _selectedAccountId!,
+        categoryId: _selectedCategoryId!,
+        date: DateFormat('yyyy-MM-dd').format(_selectedDate),
+        isIncome: _isIncome,
+        description: _descriptionController.text,
       );
 
       DBHelper.instance.insertTransaction(transaction);
@@ -68,6 +80,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   void initState() {
     super.initState();
     _loadAccounts();
+    _loadCategories();
   }
 
   @override
@@ -110,7 +123,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 },
               ),
 
-              // Cuenta
+              // Seleccionar cuenta
               DropdownButtonFormField(
                 value: _selectedAccountId,
                 items: _accounts.map((account) {
@@ -129,14 +142,21 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 },
               ),
 
-              // Categoria
-              TextFormField(
-                controller: _categoryController,
+              // Seleccionar categoria
+              DropdownButtonFormField(
+                value: _selectedCategoryId,
+                items: _categories.map((category) {
+                  return DropdownMenuItem(
+                    value: category.id,
+                    child: Text(category.name),
+                  );
+                }).toList(),
+                onChanged: (value) => setState(() {
+                  _selectedCategoryId = value as int;
+                }),
                 decoration: const InputDecoration(labelText: 'Categoría'),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese una categoría';
-                  }
+                  value == null ? 'Seleccione una categoría' : null;
                   return null;
                 },
               ),

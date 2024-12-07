@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:money_app/models/category.dart';
 import 'package:money_app/models/transaction.dart';
 import 'package:money_app/screens/add/add_transaction_screen.dart';
 import 'package:money_app/screens/base_screen.dart';
@@ -81,10 +82,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     final transaction = snapshot.data![index];
-                    return ListTile(
-                      title: Text(transaction.category),
-                      subtitle: Text(transaction.amount.toString()),
-                      trailing: Text(transaction.date),
+                    final categoryFuture = DBHelper.instance.getCategoryById(transaction.categoryId);
+                    return FutureBuilder(
+                      future: categoryFuture,
+                      builder: (context, AsyncSnapshot<Category> categorySnapshot) {
+                        if (categorySnapshot.connectionState == ConnectionState.waiting) {
+                          return const ListTile(
+                            title: Text('Cargando...'),
+                          );
+                        }
+                        if (!categorySnapshot.hasData) {
+                          return const ListTile(
+                            title: Text('Categoría no encontrada'),
+                          );
+                        }
+                        final category = categorySnapshot.data!;
+                        return ListTile(
+                          title: Text(category.name),
+                          subtitle: Text(transaction.amount.toString()),
+                          trailing: Text(transaction.date),
+                        );
+                      },
                     );
                   },
                 );
@@ -96,15 +114,14 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
         onPressed: () async {
-          bool? result = await Navigator.push(
-            context,
+          bool? result = await Navigator.of(context).push(
             MaterialPageRoute(
               builder: (context) => const AddTransactionScreen()
             ),
           );
 
           // Actualizar la lista de transacciones
-          if (result == true) {
+          if (result != null && result) {
             setState(() {
               _filter = _filter;
               _timeFilter = _timeFilter;

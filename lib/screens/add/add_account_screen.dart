@@ -39,7 +39,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
         description: _descriptionController.text,
       );
       DBHelper.instance.insertAccount(account);
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
     }
   }
 
@@ -151,13 +151,13 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                     children: [
                       const Text('Color'),
                       if (_showColorError)
-                        const Padding(
-                          padding: EdgeInsets.only(left: 8.0),
-                          child: Text(
-                            'Selecciona un color',
-                            style: TextStyle(color: Colors.red),
-                          ),
+                      const Padding(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          'Selecciona un color',
+                          style: TextStyle(color: Colors.red),
                         ),
+                      ),
                     ],
                   ),
                   Row(
@@ -172,8 +172,8 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                              color: color,
                               shape: BoxShape.circle,
+                              color: color,
                               ),
                             ),
                             if (_isColorSelected && _iconColor == color.value)
@@ -204,9 +204,7 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
               
                   // Botón de guardar
                   ElevatedButton(
-                    onPressed: () {
-                      _saveAccount();
-                      },
+                    onPressed: () => _saveAccount(),
                     child: const Text('Guardar'),
                   )
                 ],
