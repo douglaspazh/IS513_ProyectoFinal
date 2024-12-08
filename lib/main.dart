@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:money_app/screens/accounts_screen.dart';
 import 'package:money_app/screens/alerts_screen.dart';
 import 'package:money_app/screens/categories_screen.dart';
@@ -8,7 +9,9 @@ import 'package:money_app/screens/home_screen.dart';
 import 'package:money_app/screens/settings_screen.dart';
 
 void main() {
-  runApp(const MainApp());
+  initializeDateFormatting('es_ES', '').then((_) {
+    runApp(const MainApp());
+  });
 }
 
 class MainApp extends StatelessWidget {
