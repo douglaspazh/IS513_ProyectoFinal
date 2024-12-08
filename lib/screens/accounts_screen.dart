@@ -51,7 +51,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
                         const SizedBox(width: 8),
                         Text(account.name),
                         const Spacer(),
-                        Text("${getCurrencySymbol(account.currency)} ${getFormattedBalance(account.balance!)}"),
+                        Text("${getCurrencySymbol(account.currency)} ${formatBalance(account.balance!)}"),
                         const SizedBox(width: 12),
                       ],
                     ),
