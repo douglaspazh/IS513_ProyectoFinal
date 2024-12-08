@@ -35,10 +35,67 @@ List getDateRange(String timeFilter) {
 }
 
 // Formatear balance con dos decimales si es necesario
-getFormattedBalance(double balance) {
+String formatBalance(double balance) {
   if (balance % 1 == 0) {
     return balance.toStringAsFixed(0);
   } else {
     return balance.toStringAsFixed(2);
   }
+}
+
+// Formatear fecha
+String formatDate(String date) {
+  final DateTime parsedDate = DateFormat('yyyy-MM-dd').parse(date);
+  return DateFormat('dd/MM/yyyy').format(parsedDate);
+}
+
+// Formatear fecha a palabras
+String formatDateToWords(String date) {
+  final DateTime parsedDate = DateFormat('yyyy-MM-dd').parse(date);
+  final DateFormat formatter = DateFormat('d \'de\' MMMM \'de\' yyyy', 'es_ES');
+  return formatter.format(parsedDate);
+}
+
+// Formatear mes y año
+String formatMonthYear(String date) {
+  final DateTime parsedDate = DateFormat('yyyy-MM-dd').parse(date);
+  final DateFormat formatter = DateFormat('MMMM yyyy', 'es_ES');
+  return formatter.format(parsedDate);
+}
+
+String formatMonthShort(String date) {
+  final DateTime parsedDate = DateFormat('yyyy-MM-dd').parse(date);
+  final DateFormat formatter = DateFormat('MMM', 'es_ES');
+  return formatter.format(parsedDate);
+}
+
+String getMonthKey(String month) {
+  switch (month) {
+    case '01':
+      return 'ene';
+    case '02':
+      return 'feb';
+    case '03':
+      return 'mar';
+    case '04':
+      return 'abr';
+    case '05':
+      return 'may';
+    case '06':
+      return 'jun';
+    case '07':
+      return 'jul';
+    case '08':
+      return 'ago';
+    case '09':
+      return 'sep';
+    case '10':
+      return 'oct';
+    case '11':
+      return 'nov';
+    case '12':
+      return 'dic';
+    default:
+      return '';
   }
+}
