@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:money_app/models/account.dart';
 import 'package:money_app/models/category.dart';
+import 'package:money_app/utils/common_funcs.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:money_app/models/transaction.dart';
@@ -219,6 +219,7 @@ class DBHelper {
     final List<Map<String, dynamic>> result = await db.rawQuery(
       'SELECT SUM(amount) as total FROM transactions WHERE isIncome = 1'
     );
+    
     if (result.isEmpty || result.first['total'] == null) {
       return 0;
     }
@@ -227,15 +228,46 @@ class DBHelper {
 
   Future<double> getBalanceByFilter(String typeFilter, List dateRange) async {
     final db = await database;
-    final List<Map<String, dynamic>> result = await db.rawQuery(
-      'SELECT SUM(amount) as total FROM transactions WHERE isIncome = ? AND date BETWEEN ? AND ?',
-      [typeFilter == 'incomes' ? 1 : 0, dateRange[0], dateRange[1]]
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+      SELECT SUM(amount) as total
+      FROM transactions
+      WHERE isIncome = ? AND date BETWEEN ? AND ?
+      ''', [typeFilter == 'incomes' ? 1 : 0, dateRange[0], dateRange[1]]
     );
 
     if (result.isEmpty || result.first['total'] == null) {
       return 0;
     }
     return Future<double>.value(result.first['total']);
+  }
+
+  Future<Map<String, Map<String, dynamic>>> getTransactionsByCategoryAndMonth(String typeFilter) async {
+    final db = await database;
+    final currentYear = DateTime.now().year;
+    final List<Map<String, dynamic>> result = await db.rawQuery('''
+      SELECT strftime('%m', date) as month, c.name, c.iconColor, SUM(t.amount) as total
+      FROM transactions t
+      JOIN categories c ON t.categoryId = c.id
+      WHERE strftime('%Y', date) = ?
+      GROUP BY month, c.name, c.iconColor
+      HAVING t.isIncome = ?
+    ''', [currentYear.toString(), typeFilter == 'incomes' ? 1 : 0]);
+
+    Map<String, Map<String, dynamic>> transactionsByCategoryAndMonth = {};
+
+    for (var e in result) {
+      String monthKey = getMonthKey(e['month']);
+      if (!transactionsByCategoryAndMonth.containsKey(monthKey)) {
+        transactionsByCategoryAndMonth[monthKey] = {};
+      }
+      transactionsByCategoryAndMonth[monthKey]![e['name']] = {
+        'date': e['month'],
+        'total': e['total'],
+        'iconColor': e['iconColor']
+      };
+    }
+
+    return transactionsByCategoryAndMonth;
   }
 
   Future<Map<String, Map<String, dynamic>>> getCategoryData(String filterType, List dateRange) async {
@@ -249,6 +281,7 @@ class DBHelper {
       HAVING t.isIncome = ?
     ''', [dateRange[0], dateRange[1], filterType == 'incomes' ? 1 : 0]
     );
+
     return {
       for (var e in result)
         e['name']: {
