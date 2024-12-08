@@ -5,9 +5,12 @@ import 'package:money_app/models/category.dart';
 import 'package:money_app/models/transaction.dart';
 import 'package:money_app/screens/add/add_transaction_screen.dart';
 import 'package:money_app/screens/base_screen.dart';
+import 'package:money_app/screens/detail/transaction_detail_screen.dart';
 import 'package:money_app/utils/common_funcs.dart';
 import 'package:money_app/utils/db_helper.dart';
 import 'package:money_app/utils/icons.dart';
+import 'package:money_app/widgets/time_filter_buttons.dart';
+import 'package:money_app/widgets/type_filter_buttons.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,7 +20,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _filter = 'expenses';
+  String _typeFilter = 'expenses';
   String _timeFilter = 'month';
 
   @override
@@ -27,55 +30,25 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Column(
         children: [
           // Filtro de transacciones
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              TextButton(
-                child: const Text('Gastos'),
-                onPressed: () => setState(() => _filter = 'expenses'),
-              ),
-              TextButton(
-                child: const Text('Ingresos'),
-                onPressed: () => setState(() => _filter = 'incomes'),
-              )
-            ],
+          TypeFilterButtons(
+            onTypeFilterChanged: (filter) => setState(() => _typeFilter = filter)
           ),
 
-          // Filtro de tiempo
+          // Gráfico de pastel y balance total
           Card(
             margin: const EdgeInsets.all(12),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    TextButton(
-                      child: const Text('Día'),
-                      onPressed: () => setState(() => _timeFilter = 'day'),
-                    ),
-                    TextButton(
-                      child: const Text('Semana'),
-                      onPressed: () => setState(() => _timeFilter = 'week'),
-                    ),
-                    TextButton(
-                      child: const Text('Mes'),
-                      onPressed: () => setState(() => _timeFilter = 'month'),
-                    ),
-                    TextButton(
-                      child: const Text('Año'),
-                      onPressed: () => setState(() => _timeFilter = 'year'),
-                    ),
-                    TextButton(
-                      child: const Text('Periodo'),
-                      onPressed: () {},
-                    ),
-                  ],
+                // Filtro de tiempo
+                TimeFilterButtons(
+                  onTimeFilterChanged: (filter) => setState(() => _timeFilter = filter)
                 ),
+
                 // Gráfico de pastel
                 Stack(
                   children: [
                     FutureBuilder(
-                      future: DBHelper.instance.getCategoryData(_filter, getDateRange(_timeFilter)),
+                      future: DBHelper.instance.getCategoryData(_typeFilter, getDateRange(_timeFilter)),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const Center(child: CircularProgressIndicator());
@@ -121,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Positioned.fill(
                       child: Center(
                         child: FutureBuilder<double>(
-                          future: DBHelper.instance.getBalanceByFilter(_filter, getDateRange(_timeFilter)),
+                          future: DBHelper.instance.getBalanceByFilter(_typeFilter, getDateRange(_timeFilter)),
                           builder: (context, snapshot) {
                             if (snapshot.connectionState == ConnectionState.waiting) {
                               return const CircularProgressIndicator();
@@ -143,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Lista de transacciones
           Expanded(
             child: FutureBuilder(
-              future: DBHelper.instance.getTransactionsByFilter(_filter, getDateRange(_timeFilter)),
+              future: DBHelper.instance.getTransactionsByFilter(_typeFilter, getDateRange(_timeFilter)),
               builder: (context, AsyncSnapshot<List<TransactionData>> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -173,21 +146,30 @@ class _HomeScreenState extends State<HomeScreen> {
                         final category = categorySnapshot.data!;
                         return SizedBox(
                           height: 64,
-                          child: Card(
-                            child: Row(
-                              children: [
-                                const SizedBox(width: 8),
-                                CircleAvatar(
-                                  backgroundColor: Color(category.iconColor),
-                                  child: FaIcon(categoryIcons[category.iconCode], color: Colors.white),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(category.name),
-                                const Spacer(),
-                                Text(transaction.amount.toString()),
-                                const SizedBox(width: 8),
-                              ],
+                          child: GestureDetector(
+                            child: Card(
+                              child: Row(
+                                children: [
+                                  const SizedBox(width: 8),
+                                  CircleAvatar(
+                                    backgroundColor: Color(category.iconColor),
+                                    child: FaIcon(categoryIcons[category.iconCode], color: Colors.white),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(category.name),
+                                  const Spacer(),
+                                  Text(transaction.amount.toString()),
+                                  const SizedBox(width: 8),
+                                ],
+                              ),
                             ),
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => TransactionDetailScreen(id: transaction.id as int),
+                                ),
+                              );
+                            },
                           ),
                         );
                       },
@@ -211,7 +193,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Actualizar la lista de transacciones
           if (result != null && result) {
             setState(() {
-              _filter = _filter;
+              _typeFilter = _typeFilter;
               _timeFilter = _timeFilter;
             });
           }

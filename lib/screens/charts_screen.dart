@@ -1,8 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:money_app/screens/base_screen.dart';
-import 'package:money_app/utils/common_funcs.dart';
 import 'package:money_app/utils/db_helper.dart';
+import 'package:money_app/widgets/time_filter_buttons.dart';
+import 'package:money_app/widgets/type_filter_buttons.dart';
 
 class ChartsScreen extends StatefulWidget {
   const ChartsScreen({super.key});
@@ -15,8 +16,6 @@ class _ChartsScreenState extends State<ChartsScreen> {
   String _typeFilter = 'expenses';
   String _timeFilter = 'month';
 
-
-
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
@@ -24,44 +23,15 @@ class _ChartsScreenState extends State<ChartsScreen> {
       body: Column(
         children: [
           // Filtros
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              TextButton(
-                child: const Text('General'),
-                onPressed: () => setState(() => _typeFilter = 'all'),
-              ),
-              TextButton(
-                child: const Text('Gastos'),
-                onPressed: () => setState(() => _typeFilter = 'expenses'),
-              ),
-              TextButton(
-                child: const Text('Ingresos'),
-                onPressed: () => setState(() => _typeFilter = 'incomes'),
-              ),
-            ],
+          TypeFilterButtons(
+            onTypeFilterChanged: (filter) => setState(() => _typeFilter = filter),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              TextButton(
-                child: const Text('Día'),
-                onPressed: () => setState(() => _timeFilter = 'day'),
-              ),
-              TextButton(
-                child: const Text('Semana'),
-                onPressed: () => setState(() => _timeFilter = 'week'),
-              ),
-              TextButton(
-                child: const Text('Mes'),
-                onPressed: () => setState(() => _timeFilter = 'month'),
-              ),
-              TextButton(
-                child: const Text('Año'),
-                onPressed: () => setState(() => _timeFilter = 'year'),
-              ),
-            ],
+          
+          // Filtro de tiempo
+          TimeFilterButtons(
+            onTimeFilterChanged: (filter) => setState(() => _timeFilter = filter),
           ),
+          
           // Gráficos
           FutureBuilder(
             future: DBHelper.instance.getTransactionsByCategoryAndMonth(_typeFilter),

@@ -6,7 +6,13 @@ import 'package:money_app/models/transaction.dart';
 import 'package:money_app/utils/db_helper.dart';
 
 class AddTransactionScreen extends StatefulWidget {
-  const AddTransactionScreen({super.key});
+  final int? id;
+  final bool isEditing;
+
+  const AddTransactionScreen({super.key,
+    this.isEditing = false,
+    this.id
+  });
 
   @override
   State<AddTransactionScreen> createState() => _AddTransactionScreenState();
