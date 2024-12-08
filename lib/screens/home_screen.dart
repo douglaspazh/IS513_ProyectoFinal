@@ -80,9 +80,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return const Center(child: CircularProgressIndicator());
                         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          print(snapshot.data);
-                          return SizedBox(
-                            height: 250,
+                          return AspectRatio(
+                            aspectRatio: 1.5,
                             child: PieChart(
                               PieChartData(
                                 sections: [
@@ -105,8 +104,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               value: entry.value['total'],
                             );
                           }).toList();
-                          return SizedBox(
-                            height: 250,
+                          return AspectRatio(
+                            aspectRatio: 1.5,
                             child: PieChart(
                               PieChartData(
                                 sections: sections,
