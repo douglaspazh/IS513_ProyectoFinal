@@ -128,16 +128,16 @@ class DBHelper {
     return Account.fromMap(maps.first);
   }
 
-
-  // CRUD para la tabla de transacciones
-  Future<TransactionData> getTransaction(int id) async {
-    final Database db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      _transactionsTableName,
-      where: 'id = ?',
-      whereArgs: [id]
-    );
-    return TransactionData.fromMap(maps.first);
+  Future<Map<String, dynamic>> getTransactionDetails(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+      SELECT t.amount, t.date, t.description, t.isIncome, c.name as category, c.iconCode as categoryIcon, c.iconColor as categoryColor, a.name as account, a.currency as currency, a.iconCode as accountIcon, a.iconColor as accountColor
+      FROM transactions t
+      JOIN categories c ON t.categoryId = c.id
+      JOIN accounts a ON t.accountId = a.id
+      WHERE t.id = ?
+    ''', [id]);
+    return maps.first;
   }
 
   Future<int> insertTransaction(TransactionData transaction) async {
@@ -194,13 +194,14 @@ class DBHelper {
     );
   }
 
-  Future<int> deleteTransaction(int id) async {
+  Future<bool> deleteTransaction(int id) async {
     final Database db = await database;
-    return await db.delete(
+    final result = await db.delete(
       _transactionsTableName,
       where: 'id = ?',
       whereArgs: [id]
     );
+    return result > 0;
   }
 
   Future<double> getTotalExpense() async {
