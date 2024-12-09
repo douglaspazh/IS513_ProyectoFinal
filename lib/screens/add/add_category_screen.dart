@@ -277,7 +277,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                   if (widget.isEditing)
                   ElevatedButton(
                     onPressed: () async {
-                      final confirmDelete = await showDialog<bool>(
+                      final confirmDelete = await showDialog(
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text('Confirmar eliminación'),
@@ -296,7 +296,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                       );
 
                       if (confirmDelete == true) {
-                        final confirmDeleteAgain = await showDialog<bool>(
+                        final confirmDeleteAgain = await showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
                             title: const Text('¿Está realmente seguro?'),

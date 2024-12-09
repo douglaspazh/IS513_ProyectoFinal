@@ -78,7 +78,7 @@ class DBHelper {
       balance: 0,
       currency: 'HNL',
       iconCode: 'credit_card',
-      iconColor: Colors.blueGrey[300]!.value
+      iconColor: Colors.teal[300]!.value
     ).toMap());
 
     // Crear categorías por defecto
@@ -86,13 +86,25 @@ class DBHelper {
       name: 'Comida Rápida',
       type: 'expenses',
       iconCode: 'burger',
-      iconColor: Colors.green[300]!.value
+      iconColor: Colors.red[300]!.value
+    ).toMap());
+    await db.insert('categories', Category(
+      name: 'Transporte',
+      type: 'expenses',
+      iconCode: 'transport',
+      iconColor: Colors.blue[300]!.value
     ).toMap());
     await db.insert('categories', Category(
       name: 'Salario',
       type: 'incomes',
       iconCode: 'salary',
       iconColor: Colors.green[300]!.value
+    ).toMap());
+    await db.insert('categories', Category(
+      name: 'Regalo',
+      type: 'incomes',
+      iconCode: 'gift',
+      iconColor: Colors.purple[300]!.value
     ).toMap());
   }
 

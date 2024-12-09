@@ -20,16 +20,21 @@ const Map<String, IconData> accountIcons = {
 };
 
 const Map<String, IconData> categoryIcons = {
-  // Finanzas
   'bank': FontAwesomeIcons.landmark,
   'salary': FontAwesomeIcons.handHoldingDollar,
   'credit_card': FontAwesomeIcons.creditCard,
   'investment': FontAwesomeIcons.chartLine,
+  'gift': FontAwesomeIcons.gift,
+  'food': FontAwesomeIcons.utensils,
   
-  // Alimentación
   'burger': FontAwesomeIcons.burger,
   'water_bottle': FontAwesomeIcons.bottleWater,
-
+  'transport': FontAwesomeIcons.bus,
+  'shopping': FontAwesomeIcons.cartShopping,
+  'coffee': FontAwesomeIcons.mugHot,
+  'pills': FontAwesomeIcons.pills,
+  'groceries': FontAwesomeIcons.basketShopping,
+  'friends': FontAwesomeIcons.userGroup,
   'other': FontAwesomeIcons.circleQuestion,
 };
 

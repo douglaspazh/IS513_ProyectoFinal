@@ -21,7 +21,7 @@ class AddAccountScreen extends StatefulWidget {
 class _AddAccountScreenState extends State<AddAccountScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _balanceController = TextEditingController();
+  final _balanceController = TextEditingController(text: '0');
   final _descriptionController = TextEditingController();
   bool _isIconSelected = false;
   bool _isColorSelected = false;
@@ -108,6 +108,12 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                     controller: _balanceController,
                     decoration: const InputDecoration(labelText: 'Saldo Inicial'),
                     keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Ingrese un saldo inicial';
+                      }
+                      return null;
+                    },
                   ),
               
                   const SizedBox(height: 16),
@@ -247,33 +253,53 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
 
                   // Botón de eliminar
                   if (widget.isEditing)
-                    ElevatedButton(
-                      onPressed: () async {
-                        final confirmDelete = await showDialog<bool>(
+                  ElevatedButton(
+                    onPressed: () async {
+                      final confirmDelete = await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Confirmar eliminación'),
+                          content: const Text('¿Estás seguro de que deseas eliminar esta cuenta?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Eliminar'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmDelete == true) {
+                        final confirmDeleteAgain = await showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
-                            title: const Text('Confirmar eliminación'),
-                            content: const Text('¿Estás seguro de que deseas eliminar esta cuenta?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(false),
-                                child: const Text('Cancelar'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(true),
-                                child: const Text('Eliminar'),
-                              ),
-                            ],
+                          title: const Text('Confirmar eliminación nuevamente'),
+                          content: const Text('¿Estás realmente seguro? Se elimnarán todas las transacciones asociadas a esta cuenta.'),
+                          actions: [
+                            TextButton(
+                            onPressed: () => Navigator.of(context).pop(false),
+                            child: const Text('Cancelar'),
+                            ),
+                            TextButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Eliminar'),
+                            ),
+                          ],
                           ),
                         );
 
-                        if (confirmDelete == true) {
+                        if (confirmDeleteAgain == true) {
                           DBHelper.instance.deleteAccount(widget.id!);
                           Navigator.of(context).pop(true);
                         }
-                      },
-                      child: const Text('Eliminar'),
-                    ),
+                      }
+                    },
+                    child: const Text('Eliminar'),
+                  ),
                 ],
               ),
             ),
