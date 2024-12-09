@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:money_app/models/account.dart';
 import 'package:money_app/models/category.dart';
 import 'package:money_app/models/transaction.dart';
 import 'package:money_app/utils/db_helper.dart';
+import 'package:money_app/utils/icons.dart';
+import 'package:money_app/widgets/type_filter_buttons.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final bool isEditing;
@@ -127,18 +130,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           child: Column(
             children: [
               // Ingreso o Gasto
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  TextButton(
-                    child: const Text('Gasto'),
-                    onPressed: () => setState(() => _isIncome = false),
-                  ),
-                  TextButton(
-                    child: const Text('Ingreso'),
-                    onPressed: () => setState(() => _isIncome = true),
-                  ),
-                ],
+              TypeFilterButtons(
+                onTypeFilterChanged: (filter) => setState(() => _isIncome = (filter == 'incomes' ? true : false)),
               ),
 
               // Monto
@@ -160,7 +153,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 items: _accounts.map((account) {
                   return DropdownMenuItem(
                     value: account.id,
-                    child: Text(account.name),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Color(account.iconColor),
+                          child: FaIcon(getIconData(account.iconCode), color: Colors.white),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(account.name),
+                      ],
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) => setState(() {
@@ -179,7 +181,16 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 items: _categories.map((category) {
                   return DropdownMenuItem(
                     value: category.id,
-                    child: Text(category.name),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Color(category.iconColor),
+                          child: FaIcon(getIconData(category.iconCode), color: Colors.white),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(category.name),
+                      ],
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) => setState(() {
