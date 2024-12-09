@@ -6,8 +6,8 @@ import 'package:money_app/models/transaction.dart';
 import 'package:money_app/utils/db_helper.dart';
 
 class AddTransactionScreen extends StatefulWidget {
-  final int? id;
   final bool isEditing;
+  final int? id;
 
   const AddTransactionScreen({super.key,
     this.isEditing = false,
@@ -26,6 +26,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   int? _selectedAccountId;
   int? _selectedCategoryId;
 
+  double _oldAmount = 0;
   bool _isIncome = false;
   List<Account> _accounts = [];
   List<Category> _categories = [];
@@ -75,8 +76,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         description: _descriptionController.text,
       );
 
-      DBHelper.instance.insertTransaction(transaction);
-      DBHelper.instance.updateAccountBalance(transaction.accountId, transaction.amount, transaction.isIncome);
+      if (widget.isEditing) {
+        // Actualizar balance de cuenta
+        DBHelper.instance.updateAccountBalance(transaction.accountId, _oldAmount, false);
+        DBHelper.instance.updateAccountBalance(transaction.accountId, transaction.amount, _isIncome);
+        DBHelper.instance.updateTransaction(widget.id!, transaction);
+      } else {
+        DBHelper.instance.insertTransaction(transaction);
+        DBHelper.instance.updateAccountBalance(transaction.accountId, transaction.amount, transaction.isIncome);
+      }
 
       Navigator.pop(context, true);
     }
@@ -87,13 +95,30 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     super.initState();
     _loadAccounts();
     _loadCategories();
+
+    if (widget.isEditing) {
+      DBHelper.instance.getTransactionById(widget.id!).then((transaction) {
+        setState(() {
+          _oldAmount = transaction.amount;
+          _amountController.text = transaction.amount.toString();
+          _selectedAccountId = transaction.accountId;
+          _selectedCategoryId = transaction.categoryId;
+          _selectedDate = DateTime.parse(transaction.date);
+          _isIncome = transaction.isIncome;
+          _descriptionController.text = transaction.description ?? '';
+        });
+      });
+    }
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Agregar Transacción'),
+        title: Text(
+          widget.isEditing ? 'Editar Transacción' : 'Agregar Transacción'
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

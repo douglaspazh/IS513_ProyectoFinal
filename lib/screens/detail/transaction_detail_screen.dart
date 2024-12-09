@@ -6,7 +6,7 @@ import 'package:money_app/utils/currencies.dart';
 import 'package:money_app/utils/db_helper.dart';
 import 'package:money_app/utils/icons.dart';
 
-class TransactionDetailScreen extends StatefulWidget {
+class TransactionDetailScreen extends StatelessWidget {
   final int id;
 
   const TransactionDetailScreen({super.key,
@@ -14,16 +14,11 @@ class TransactionDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<TransactionDetailScreen> createState() => _TransactionDetailScreenState();
-}
-
-class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Detalles de la transacción')),
       body: FutureBuilder(
-        future: DBHelper.instance.getTransactionDetails(widget.id),
+        future: DBHelper.instance.getTransactionDetails(id),
         builder: (context, AsyncSnapshot snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -140,7 +135,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                     onPressed: () async {
                       final result = await Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => AddTransactionScreen(id: widget.id, isEditing: true),
+                          builder: (context) => AddTransactionScreen(id: id, isEditing: true),
                         ),
                       );
                   
@@ -175,7 +170,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                       );
 
                       if (dialogConfirm == true) {
-                        final result = await DBHelper.instance.deleteTransaction(widget.id);
+                        final result = await DBHelper.instance.deleteTransaction(id);
                         if (result && context.mounted) {
                           Navigator.pop(context, true);
                         }
@@ -184,8 +179,6 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                   )
                 ],
               ),
-
-              
             ],
           );
         }

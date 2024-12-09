@@ -128,6 +128,16 @@ class DBHelper {
     return Account.fromMap(maps.first);
   }
 
+  Future<TransactionData> getTransactionById(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'transactions',
+      where: 'id = ?',
+      whereArgs: [id]
+    );
+    return TransactionData.fromMap(maps.first);
+  }
+
   Future<Map<String, dynamic>> getTransactionDetails(int id) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.rawQuery('''
@@ -184,13 +194,15 @@ class DBHelper {
     return List.generate(maps.length, (i) => TransactionData.fromMap(maps[i]));
   }
 
-  Future<int> updateTransaction(TransactionData transaction) async {
+  Future<int> updateTransaction(int id, TransactionData transaction) async {
     final Database db = await database;
+    final transactionMap = transaction.toMap();
+    transactionMap.remove('id');
     return await db.update(
       _transactionsTableName,
-      transaction.toMap(),
+      transactionMap,
       where: 'id = ?',
-      whereArgs: [transaction.id],
+      whereArgs: [id],
     );
   }
 
@@ -294,7 +306,7 @@ class DBHelper {
 
 
   // CRUD para la tabla de cuentas
-  Future<Account> getAccount(int id) async {
+  Future<Account> getAccountById(int id) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
       _accountsTableName,
@@ -330,19 +342,21 @@ class DBHelper {
     );
   }
 
-  Future<int> updateAccount(Account account) async {
+  Future<int> updateAccount(int id, Account account) async {
     final db = await database;
+    final accountMap = account.toMap();
+    accountMap.remove('id');
     return await db.update(
       _accountsTableName,
-      account.toMap(),
+      accountMap,
       where: 'id = ?',
-      whereArgs: [account.id]
+      whereArgs: [id]
     );
   }
 
   Future<int> updateAccountBalance(int id, double amount, bool isIncome) async {
     final db = await database;
-    final account = await getAccount(id);
+    final account = await getAccountById(id);
     final newBalance = isIncome ? account.balance! + amount : account.balance! - amount;
     return await db.update(
       _accountsTableName,
@@ -397,13 +411,15 @@ class DBHelper {
     );
   }
 
-  Future<int> updateCategory(Category category) async {
+  Future<int> updateCategory(int id, Category category) async {
     final db = await database;
+    final categoryMap = category.toMap();
+    categoryMap.remove('id');
     return await db.update(
       _categoriesTableName,
-      category.toMap(),
+      categoryMap,
       where: 'id = ?',
-      whereArgs: [category.id]
+      whereArgs: [id]
     );
   }
 

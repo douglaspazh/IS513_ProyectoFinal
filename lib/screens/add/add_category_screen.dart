@@ -6,7 +6,13 @@ import 'package:money_app/utils/db_helper.dart';
 import 'package:money_app/utils/icons.dart';
 
 class AddCategoryScreen extends StatefulWidget {
-  const AddCategoryScreen({super.key});
+  final bool isEditing;
+  final int? id;
+
+  const AddCategoryScreen({super.key,
+    this.isEditing = false,
+    this.id
+  });
 
   @override
   State<AddCategoryScreen> createState() => _AddCategoryScreenState();
@@ -17,8 +23,8 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
   late String _categoryType = 'expenses';
-  late String _iconCode;
-  late int _iconColor;
+  late String _iconCode = '';
+  late int _iconColor = 0;
   bool _isIconSelected = false;
   bool _isColorSelected = false;
   bool _showIconError = false;
@@ -38,7 +44,13 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
         iconColor: _iconColor,
         description: _descriptionController.text,
       );
+    
+    if (widget.isEditing) {
+      DBHelper.instance.updateCategory(widget.id!, category);
+    } else {
       DBHelper.instance.insertCategory(category);
+    }
+      
       Navigator.of(context).pop(true);
     }
   }
@@ -48,11 +60,33 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.isEditing) {
+      DBHelper.instance.getCategoryById(widget.id!).then((category) {
+        setState(() {
+          _nameController.text = category.name;
+          _categoryType = category.type;
+          _iconCode = category.iconCode;
+          _iconColor = category.iconColor;
+          _descriptionController.text = category.description ?? '';
+          _isIconSelected = true;
+          _isColorSelected = true;
+        });
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => dismissKeyboard(context),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Agregar Categoría')),
+        appBar: AppBar(
+          title: Text(
+            widget.isEditing ? 'Editar categoría' : 'Agregar categoría'
+          ),
+        ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Form(
@@ -238,6 +272,56 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                     onPressed: _saveCategory,
                     child: const Text('Guardar'),
                   ),
+
+                  // Botón de eliminar
+                  if (widget.isEditing)
+                  ElevatedButton(
+                    onPressed: () async {
+                      final confirmDelete = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Confirmar eliminación'),
+                          content: const Text('¿Está seguro de que desea eliminar esta categoría?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Eliminar'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmDelete == true) {
+                        final confirmDeleteAgain = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('¿Está realmente seguro?'),
+                            content: const Text('Se eliminarán todas las transacciones asociadas a esta categoría.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text('Cancelar'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                child: const Text('Eliminar'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirmDeleteAgain == true) {
+                          await DBHelper.instance.deleteCategory(widget.id!);
+                          Navigator.of(context).pop(true);
+                        }
+                      }
+                    },
+                    child: const Text('Eliminar'),
+                  )
                 ],
               ),
             ),

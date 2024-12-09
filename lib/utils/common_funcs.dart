@@ -34,13 +34,10 @@ List getDateRange(String timeFilter) {
   return [startDate, endDate];
 }
 
-// Formatear balance con dos decimales si es necesario
+// Formatear balance con separador de miles y dos decimales si es necesario
 String formatBalance(double balance) {
-  if (balance % 1 == 0) {
-    return balance.toStringAsFixed(0);
-  } else {
-    return balance.toStringAsFixed(2);
-  }
+  final formatter = NumberFormat('#,##0.##', 'en_US');
+  return formatter.format(balance);
 }
 
 // Formatear fecha

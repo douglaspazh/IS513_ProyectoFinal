@@ -6,7 +6,13 @@ import 'package:money_app/utils/colors.dart';
 import 'package:money_app/utils/icons.dart';
 
 class AddAccountScreen extends StatefulWidget {
-  const AddAccountScreen({super.key});
+  final bool isEditing;
+  final int? id;
+
+  const AddAccountScreen({super.key,
+    this.isEditing = false,
+    this.id = 0
+  });
 
   @override
   State<AddAccountScreen> createState() => _AddAccountScreenState();
@@ -38,7 +44,13 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
         iconColor: _iconColor,
         description: _descriptionController.text,
       );
+      
+    if (widget.isEditing) {
+      DBHelper.instance.updateAccount(widget.id!, account);
+    } else {
       DBHelper.instance.insertAccount(account);
+    }
+
       Navigator.of(context).pop(true);
     }
   }
@@ -48,11 +60,36 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    
+    if (widget.isEditing) {
+      DBHelper.instance.getAccountById(widget.id!).then((account) {
+        setState(() {
+          _nameController.text = account.name;
+          _balanceController.text = account.balance.toString();
+          _iconCode = account.iconCode;
+          _iconColor = account.iconColor;
+          _descriptionController.text = account.description ?? '';
+          _isIconSelected = true;
+          _isColorSelected = true;
+          _showIconError = false;
+          _showColorError = false;
+        });
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => dismissKeyboard(context),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Agregar Cuenta')),
+        appBar: AppBar(
+          title: Text(
+            widget.isEditing ? 'Editar Cuenta' : 'Agregar Cuenta'
+          ),
+        ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Form(
@@ -206,7 +243,37 @@ class _AddAccountScreenState extends State<AddAccountScreen> {
                   ElevatedButton(
                     onPressed: () => _saveAccount(),
                     child: const Text('Guardar'),
-                  )
+                  ),
+
+                  // Botón de eliminar
+                  if (widget.isEditing)
+                    ElevatedButton(
+                      onPressed: () async {
+                        final confirmDelete = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Confirmar eliminación'),
+                            content: const Text('¿Estás seguro de que deseas eliminar esta cuenta?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(false),
+                                child: const Text('Cancelar'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(true),
+                                child: const Text('Eliminar'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirmDelete == true) {
+                          DBHelper.instance.deleteAccount(widget.id!);
+                          Navigator.of(context).pop(true);
+                        }
+                      },
+                      child: const Text('Eliminar'),
+                    ),
                 ],
               ),
             ),

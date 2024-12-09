@@ -58,6 +58,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   itemBuilder: (context, index) {
                     final category = snapshot.data![index];
                     return GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => AddCategoryScreen(isEditing: true, id: category.id)
+                          )
+                        );
+                      },
                       child: Column(
                         children: [
                           CircleAvatar(
@@ -68,7 +75,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           Text(category.name, style: const TextStyle(fontSize: 12))
                         ],
                       ),
-                      onTap: () {}
                     );
                   },
                 );

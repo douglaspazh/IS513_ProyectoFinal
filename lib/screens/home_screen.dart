@@ -1,15 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:money_app/models/category.dart';
-import 'package:money_app/models/transaction.dart';
 import 'package:money_app/screens/add/add_transaction_screen.dart';
 import 'package:money_app/screens/base_screen.dart';
-import 'package:money_app/screens/detail/transaction_detail_screen.dart';
 import 'package:money_app/utils/common_funcs.dart';
 import 'package:money_app/utils/db_helper.dart';
-import 'package:money_app/utils/icons.dart';
+import 'package:money_app/widgets/balance_text.dart';
 import 'package:money_app/widgets/time_filter_buttons.dart';
+import 'package:money_app/widgets/transaction_listcards.dart';
 import 'package:money_app/widgets/type_filter_buttons.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -93,18 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Balance total de transacciones
                     Positioned.fill(
                       child: Center(
-                        child: FutureBuilder<double>(
-                          future: DBHelper.instance.getBalanceByFilter(_typeFilter, getDateRange(_timeFilter)),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
-                            } else if (!snapshot.hasData) {
-                              return const Text('No hay transacciones');
-                            } else {
-                              return Text(snapshot.data!.toStringAsFixed(2));
-                            }
-                          },
-                        ),
+                        child: BalanceText(typeFilter: _typeFilter, timeFilter: _timeFilter)
                       ),
                     ),
                   ],
@@ -115,69 +101,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Lista de transacciones
           Expanded(
-            child: FutureBuilder(
-              future: DBHelper.instance.getTransactionsByFilter(_typeFilter, getDateRange(_timeFilter)),
-              builder: (context, AsyncSnapshot<List<TransactionData>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No hay transacciones registradas'));
-                }
-                return ListView.builder(
-                  padding: const EdgeInsets.all(8),
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    final transaction = snapshot.data![index];
-                    final categoryFuture = DBHelper.instance.getCategoryById(transaction.categoryId);
-                    return FutureBuilder(
-                      future: categoryFuture,
-                      builder: (context, AsyncSnapshot<Category> categorySnapshot) {
-                        if (categorySnapshot.connectionState == ConnectionState.waiting) {
-                          return const ListTile(
-                            title: Text('Cargando...'),
-                          );
-                        }
-                        if (!categorySnapshot.hasData) {
-                          return const ListTile(
-                            title: Text('Categoría no encontrada'),
-                          );
-                        }
-                        final category = categorySnapshot.data!;
-                        return SizedBox(
-                          height: 64,
-                          child: GestureDetector(
-                            child: Card(
-                              child: Row(
-                                children: [
-                                  const SizedBox(width: 8),
-                                  CircleAvatar(
-                                    backgroundColor: Color(category.iconColor),
-                                    child: FaIcon(categoryIcons[category.iconCode], color: Colors.white),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(category.name),
-                                  const Spacer(),
-                                  Text(transaction.amount.toString()),
-                                  const SizedBox(width: 8),
-                                ],
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => TransactionDetailScreen(id: transaction.id as int),
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-            ),
+            child: TransactionListcards(
+              typeFilter: _typeFilter,
+              timeFilter: _timeFilter
+            )
           ),
         ],
       ),

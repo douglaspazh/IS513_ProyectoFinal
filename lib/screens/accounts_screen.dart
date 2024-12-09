@@ -20,7 +20,9 @@ class _AccountsScreenState extends State<AccountsScreen> {
   @override
   Widget build(BuildContext context) {
     return BaseScreen(
-      appBar: AppBar(title: const Text('Cuentas')),
+      appBar: AppBar(
+        title: const Text('Cuentas')
+      ),
       body: FutureBuilder(
           future: DBHelper.instance.getAllAccounts(),
           builder: (context, AsyncSnapshot<List<Account>> snapshot) {
@@ -34,27 +36,37 @@ class _AccountsScreenState extends State<AccountsScreen> {
               padding: const EdgeInsets.all(12),
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                final account = snapshot.data![index];
+                final data = snapshot.data as List<Account>?;
+                final account = data![index];
                 return SizedBox(
                   height: 60,
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  child: GestureDetector(
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 12),
+                          CircleAvatar(
+                            backgroundColor: Color(account.iconColor),
+                            child: FaIcon(getIconData(account.iconCode), color: Colors.white, size: 22),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(account.name),
+                          const Spacer(),
+                          Text("${getCurrencySymbol(account.currency)} ${formatBalance(account.balance!)}"),
+                          const SizedBox(width: 12),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        const SizedBox(width: 12),
-                        CircleAvatar(
-                          backgroundColor: Color(account.iconColor),
-                          child: FaIcon(getIconData(account.iconCode), color: Colors.white, size: 22),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(account.name),
-                        const Spacer(),
-                        Text("${getCurrencySymbol(account.currency)} ${formatBalance(account.balance!)}"),
-                        const SizedBox(width: 12),
-                      ],
-                    ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => AddAccountScreen(isEditing: true, id: account.id)
+                        )
+                      );
+                    },
                   ),
                 );
               },
