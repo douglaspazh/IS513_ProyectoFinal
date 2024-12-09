@@ -24,30 +24,34 @@ class _TypeFilterButtonsState extends State<TypeFilterButtons> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        TextButton(
-          onPressed: () => _updateFilter('expenses'),
-          child: Text(
-            'Gastos',
-            style: TextStyle(
-              fontSize: 16,
-              color: _selectedFilter == 'expenses' ? Colors.green[600] : Colors.grey[800],
-              decoration: _selectedFilter == 'expenses'
-                ? TextDecoration.underline
-                : null,
+        Expanded(
+          child: TextButton(
+            onPressed: () => _updateFilter('expenses'),
+            child: Text(
+              'Gastos',
+              style: TextStyle(
+                fontSize: 16,
+                color: _selectedFilter == 'expenses' ? Colors.green[600] : Colors.grey[800],
+                decoration: _selectedFilter == 'expenses'
+                  ? TextDecoration.underline
+                  : null,
+              ),
             ),
           ),
         ),
-        TextButton(
-          onPressed: () => _updateFilter('incomes'),
-          child: Text(
-            'Ingresos',
-            style: TextStyle(
-              fontSize: 16,
-              color: _selectedFilter == 'incomes' ? Colors.green[600] : Colors.grey[800],
-              decoration: _selectedFilter == 'incomes'
-                ? TextDecoration.underline
-                : null,
-            )
+        Expanded(
+          child: TextButton(
+            onPressed: () => _updateFilter('incomes'),
+            child: Text(
+              'Ingresos',
+              style: TextStyle(
+                fontSize: 16,
+                color: _selectedFilter == 'incomes' ? Colors.green[600] : Colors.grey[800],
+                decoration: _selectedFilter == 'incomes'
+                  ? TextDecoration.underline
+                  : null,
+              )
+            ),
           ),
         )
       ],
