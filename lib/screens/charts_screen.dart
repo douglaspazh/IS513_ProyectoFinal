@@ -31,7 +31,7 @@ class _ChartsScreenState extends State<ChartsScreen> {
           TimeFilterButtons(
             onTimeFilterChanged: (filter) => setState(() => _timeFilter = filter),
           ),
-          
+
           // Gráficos
           FutureBuilder(
             future: DBHelper.instance.getTransactionsByCategoryAndMonth(_typeFilter),
@@ -39,14 +39,17 @@ class _ChartsScreenState extends State<ChartsScreen> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return BarChart(
-                  BarChartData(
-                    barGroups: [],
-                    gridData: const FlGridData(show: false),
-                    titlesData: const FlTitlesData(
-                      topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                      bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)
-                      )
+                return SizedBox(
+                  height: 300,
+                  child: BarChart(
+                    BarChartData(
+                      barGroups: [],
+                      gridData: const FlGridData(show: false),
+                      titlesData: const FlTitlesData(
+                        topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)
+                        )
+                      ),
                     ),
                   ),
                 );
