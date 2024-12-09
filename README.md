@@ -1,3 +1,6 @@
-# money_app
+# Proyecto final de clase (IS513)
 
-A new Flutter project.
+- Nombre: Douglas Anthony Paz Hernandez
+- Cuenta: 20232000878
+
+**UNAH Campus Cortés**
