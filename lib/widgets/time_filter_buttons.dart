@@ -25,24 +25,69 @@ class _TimeFilterButtonsState extends State<TimeFilterButtons> {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         TextButton(
-          child: const Text('Día'),
           onPressed: () => setState(() => _updateFilter('day')),
+          child: Text(
+            'Día',
+            style: TextStyle(
+              fontSize: 16,
+              color: _selectedFilter == 'day' ? Colors.green[600] : Colors.grey[800],
+              decoration: _selectedFilter == 'day'
+                ? TextDecoration.underline
+                : null,
+            ),
+          ),
         ),
         TextButton(
-          child: const Text('Semana'),
           onPressed: () => setState(() => _updateFilter('week')),
+          child: Text(
+            'Semana',
+            style: TextStyle(
+              fontSize: 16,
+              color: _selectedFilter == 'week' ? Colors.green[600] : Colors.grey[800],
+              decoration: _selectedFilter == 'week'
+                ? TextDecoration.underline
+                : null,
+            ),
+          ),
         ),
         TextButton(
-          child: const Text('Mes'),
           onPressed: () => setState(() => _updateFilter('month')),
+          child: Text(
+            'Mes',
+            style: TextStyle(
+              fontSize: 16,
+              color: _selectedFilter == 'month' ? Colors.green[600] : Colors.grey[800],
+              decoration: _selectedFilter == 'month'
+                ? TextDecoration.underline
+                : null,
+            ),
+          ),
         ),
         TextButton(
-          child: const Text('Año'),
           onPressed: () => setState(() => _updateFilter('year')),
+          child: Text(
+            'Año',
+            style: TextStyle(
+              fontSize: 16,
+              color: _selectedFilter == 'year' ? Colors.green[600] : Colors.grey[800],
+              decoration: _selectedFilter == 'year'
+                ? TextDecoration.underline
+                : null,
+            )
+          ),
         ),
         TextButton(
-          child: const Text('Periodo'),
           onPressed: () {},
+          child: Text(
+            'Periodo',
+            style: TextStyle(
+              fontSize: 16,
+              color: _selectedFilter == 'period' ? Colors.green[600] : Colors.grey[800],
+              decoration: _selectedFilter == 'period'
+                ? TextDecoration.underline
+                : null,
+            ),
+          ),
         ),
       ],
     );
