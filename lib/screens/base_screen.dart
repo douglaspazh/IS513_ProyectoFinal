@@ -24,7 +24,18 @@ class BaseScreen extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             const DrawerHeader(
-              child: Text('Menú')
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: AssetImage('lib/assets/user.png'),
+                  ),
+                  SizedBox(height: 10),
+                  Text('Douglas Paz', style: TextStyle(color: Colors.black, fontSize: 20)),
+                  Text('douglas.paz@unah.hn', style: TextStyle(color: Colors.black, fontSize: 15)),
+                ],
+              )
             ),
             ListTile(
               leading: const Icon(Icons.home),
