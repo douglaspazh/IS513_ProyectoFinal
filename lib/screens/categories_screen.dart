@@ -5,6 +5,7 @@ import 'package:money_app/screens/add/add_category_screen.dart';
 import 'package:money_app/screens/base_screen.dart';
 import 'package:money_app/utils/db_helper.dart';
 import 'package:money_app/utils/icons.dart';
+import 'package:money_app/widgets/type_filter_buttons.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -22,18 +23,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       appBar: AppBar(title: const Text('Categorías')),
       body: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              TextButton(
-                child: const Text('Gastos'),
-                onPressed: () => setState(() => _filter = 'expenses'),
-              ),
-              TextButton(
-                child: const Text('Ingresos'),
-                onPressed: () => setState(() => _filter = 'incomes'),
-              )
-            ],
+          // Filtro
+          TypeFilterButtons(
+            onTypeFilterChanged: (filter) => setState(() => _filter = filter)
           ),
       
           // Lista de categorías
